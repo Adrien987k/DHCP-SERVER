@@ -43,9 +43,9 @@ public class DhcpMessage {
 	private String file;
 	
 	private final static byte[] magicCookie = { (byte) 99, (byte) 130, (byte) 83, (byte) 99, }; 
-	//private Map<Integer, DhcpOption> options = new HashMap<>();
+	private DhcpOptionCollection options = null;
 	
-	public DhcpMessage(){
+	private DhcpMessage(){
 		try {
 			ZERO_IP_ADDRESS = InetAddress.getByName("0.0.0.0");
 			ciaddr = InetAddress.getByName("0.0.0.0");
@@ -78,7 +78,11 @@ public class DhcpMessage {
 		buffer.put(sname.getBytes());
 		buffer.put(file.getBytes());
 		
-		//TODO put options in the buffer
+		try {
+			buffer.put(options.getOptionsBytes());
+		} catch (InvalidDhcpMessageException e) {
+			//TODO do something
+		}
 		
 		buffer.flip();
 		
@@ -98,15 +102,16 @@ public class DhcpMessage {
 			if(byteTab.length < DHCP_MESSAGE_MIN_SIZE) invalidDhcpMessage("incomplete dhcp message received");
 			buffer = ByteBuffer.allocate(byteTab.length);
 			
-			short op = buffer.get();
+			
+			short op = BufferUtils.byteToShort(buffer.get());
 			if(op != 1) invalidDhcpMessage("reply received");
 			
-			dhcpMessage.setHtype(buffer.get());
-			dhcpMessage.setHlen(buffer.get());
-			dhcpMessage.setHops(buffer.get());
-			dhcpMessage.setXid(buffer.get());
-			dhcpMessage.setSecs(buffer.get());
-			dhcpMessage.setFlags(buffer.get());
+			dhcpMessage.setHtype(BufferUtils.byteToShort(buffer.get()));
+			dhcpMessage.setHlen(BufferUtils.byteToShort(buffer.get()));
+			dhcpMessage.setHops(BufferUtils.byteToShort(buffer.get()));
+			dhcpMessage.setXid(BufferUtils.intToLong(buffer.get()));
+			dhcpMessage.setSecs(BufferUtils.shortToInt(buffer.get()));
+			dhcpMessage.setFlags(BufferUtils.shortToInt(buffer.get()));
 			
 			byte[] buf = new byte[4];
 			try {
@@ -134,10 +139,10 @@ public class DhcpMessage {
 			buffer.get(buf);
 			if(!Arrays.equals(buf, magicCookie)) invalidDhcpMessage("dhcp message with invalid magic cookie received");
 			
-			//TODO read options
+			dhcpMessage.setOptions(DhcpOptionCollection.parseDhcpOptions(buffer));
 			
 		} catch(InvalidDhcpMessageException e){
-			e.printStackTrace();
+			//TODO do something
 		}
 		
 		return dhcpMessage;
@@ -262,6 +267,10 @@ public class DhcpMessage {
 
 	public void setFile(String file) {
 		this.file = file;
+	}
+	
+	public void setOptions(DhcpOptionCollection options){
+		this.options = options;
 	}
 	
 	/*END OF GETTERS AND SETTERS*/

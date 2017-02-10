@@ -9,4 +9,17 @@ public class BufferUtils {
 		return sb.toString();
 	}
 	
+	public static short byteToShort(byte b){
+		return (short) (Byte.toUnsignedInt(b));
+	}
+	
+	public static int shortToInt(byte b){
+		return (Byte.toUnsignedInt(b));
+	}
+	
+	public static long intToLong(byte b){
+		return (Byte.toUnsignedLong(b));
+	}
+	
+	
 }
