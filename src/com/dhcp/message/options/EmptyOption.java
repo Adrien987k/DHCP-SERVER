@@ -18,6 +18,11 @@ public class EmptyOption extends DhcpOption {
 		byte[] result = { (byte) 0}; 
 		return result;
 	}
+	
+	@Override
+	public int getTotalLength(){
+		return 1;
+	}
 
 	@Override
 	public void parseDhcpOption(ByteBuffer buffer) throws InvalidDhcpMessageException {

@@ -10,15 +10,15 @@ public class BufferUtils {
 	}
 	
 	public static short byteToShort(byte b){
-		return (short) (Byte.toUnsignedInt(b));
+		return (short) Byte.toUnsignedInt(b);
 	}
 	
-	public static int shortToInt(byte b){
-		return (Byte.toUnsignedInt(b));
+	public static int shortToInt(short b){
+		return Short.toUnsignedInt(b);
 	}
 	
-	public static long intToLong(byte b){
-		return (Byte.toUnsignedLong(b));
+	public static long intToLong(int b){
+		return Integer.toUnsignedLong(b);
 	}
 	
 	

@@ -31,6 +31,10 @@ public abstract class DhcpOption {
 		return length;
 	}
 	
+	public int getTotalLength(){
+		return length + 2;
+	}
+	
 	public short getCode(){
 		return code;
 	}

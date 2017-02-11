@@ -9,7 +9,7 @@ import com.dhcp.util.BufferUtils;
 
 public class DhcpMessage {
 	
-	public static final int DHCP_MESSAGE_SIZE = 1024;
+	public static final int DHCP_MESSAGE_MAX_SIZE = 1024;
 	public static final int DHCP_MESSAGE_MIN_SIZE = 244;
 	public static InetAddress ZERO_IP_ADDRESS = null;
 	
@@ -23,6 +23,7 @@ public class DhcpMessage {
 	public static final int DHCPINFORM = 7;
 	
 	private int type;
+	private int length = 0;
 	
 	private short op = 0;
 	private short htype = 0;
@@ -45,7 +46,7 @@ public class DhcpMessage {
 	private final static byte[] magicCookie = { (byte) 99, (byte) 130, (byte) 83, (byte) 99, }; 
 	private DhcpOptionCollection options = null;
 	
-	private DhcpMessage(){
+	public DhcpMessage(){
 		try {
 			ZERO_IP_ADDRESS = InetAddress.getByName("0.0.0.0");
 			ciaddr = InetAddress.getByName("0.0.0.0");
@@ -59,7 +60,10 @@ public class DhcpMessage {
 	}
 	
 	public byte[] getDhcpMessageBytes(){
-		ByteBuffer buffer = ByteBuffer.allocate(DHCP_MESSAGE_SIZE);
+		//if(length < DhcpMessage.DHCP_MESSAGE_MIN_SIZE) DhcpMessage.invalidDhcpMessage("length error");
+		//if(length > DhcpMessage.DHCP_MESSAGE_MAX_SIZE) DhcpMessage.invalidDhcpMessage("length error");
+		
+		ByteBuffer buffer = ByteBuffer.allocate(length);
 		
 		buffer.put((byte) op);
 		buffer.put((byte) htype);
@@ -75,43 +79,57 @@ public class DhcpMessage {
 		buffer.put(giaddr != null ? giaddr.getAddress() : ZERO_IP_ADDRESS.getAddress());
 		buffer.put(chaddr, 0, 16);
 		
-		buffer.put(sname.getBytes());
-		buffer.put(file.getBytes());
+		buffer.put(getSname().getBytes());
+		buffer.put(getFile().getBytes());
+		
+		buffer.put(magicCookie, 0, 4);
 		
 		try {
-			buffer.put(options.getOptionsBytes());
+			if(options != null) buffer.put(options.getOptionsBytes());
 		} catch (InvalidDhcpMessageException e) {
 			//TODO do something
 		}
 		
-		buffer.flip();
+		//buffer.flip();
 		
 		return buffer.array();
 	}
 	
 	public static void invalidDhcpMessage(String message) throws InvalidDhcpMessageException {
 		//TODO LOGGER error
+		System.out.println("ERROR : " + message);
 		throw new InvalidDhcpMessageException(message);
 	}
 	
-	public static DhcpMessage parseDhcpPacket(byte[] byteTab, int length) {
+	private static boolean validateMagicCookie(byte[] test){
+		return    (test[0] == (byte) 99)
+			   && (BufferUtils.byteToShort(test[1]) == (short) 130)
+			   && (test[2] == (byte) 83)
+			   && (test[3] == (byte) 99);
+	}
+	
+	public static DhcpMessage parseDhcpPacket(byte[] byteTab) {
 		ByteBuffer buffer = null; 
 		DhcpMessage dhcpMessage = new DhcpMessage();
 		try{
 			if(byteTab == null) invalidDhcpMessage("empty dhcp message received");
-			if(byteTab.length < DHCP_MESSAGE_MIN_SIZE) invalidDhcpMessage("incomplete dhcp message received");
-			buffer = ByteBuffer.allocate(byteTab.length);
 			
+			//Condition désactiver juste pour le test sans option
+			//if(byteTab.length < DHCP_MESSAGE_MIN_SIZE) invalidDhcpMessage("incomplete dhcp message received");
+			
+			buffer = ByteBuffer.wrap(byteTab);
 			
 			short op = BufferUtils.byteToShort(buffer.get());
-			if(op != 1) invalidDhcpMessage("reply received");
+			if(op == 2) invalidDhcpMessage("BOOTREPLY received");
+			if(op != 1 && op != 2) invalidDhcpMessage("dhcp message received with invalid op field");
+			dhcpMessage.setOp(op);
 			
 			dhcpMessage.setHtype(BufferUtils.byteToShort(buffer.get()));
 			dhcpMessage.setHlen(BufferUtils.byteToShort(buffer.get()));
 			dhcpMessage.setHops(BufferUtils.byteToShort(buffer.get()));
-			dhcpMessage.setXid(BufferUtils.intToLong(buffer.get()));
-			dhcpMessage.setSecs(BufferUtils.shortToInt(buffer.get()));
-			dhcpMessage.setFlags(BufferUtils.shortToInt(buffer.get()));
+			dhcpMessage.setXid(BufferUtils.intToLong(buffer.getInt()));
+			dhcpMessage.setSecs(BufferUtils.shortToInt(buffer.getShort()));
+			dhcpMessage.setFlags(BufferUtils.shortToInt(buffer.getShort()));
 			
 			byte[] buf = new byte[4];
 			try {
@@ -137,21 +155,55 @@ public class DhcpMessage {
 			dhcpMessage.setFile(new String(buf));
 			buf = new byte[4];
 			buffer.get(buf);
-			if(!Arrays.equals(buf, magicCookie)) invalidDhcpMessage("dhcp message with invalid magic cookie received");
+			if(!validateMagicCookie(buf)) invalidDhcpMessage("dhcp message with invalid magic cookie received");
 			
-			dhcpMessage.setOptions(DhcpOptionCollection.parseDhcpOptions(buffer));
+			if(buffer.hasRemaining())
+				dhcpMessage.setOptions(DhcpOptionCollection.parseDhcpOptions(buffer));
+			else invalidDhcpMessage("dhcp message received with no option");
+			
+			dhcpMessage.length = DHCP_MESSAGE_MIN_SIZE + dhcpMessage.options.totalLength();
 			
 		} catch(InvalidDhcpMessageException e){
-			//TODO do something
+			//return null; 
 		}
 		
 		return dhcpMessage;
+	}
+	
+	public String toString(){
+		StringBuilder sb = new StringBuilder();
+		sb.append("DHCP MESSAGE\n");
+		sb.append("TYPE : " + type +  "\n");
+		sb.append("OP : " + op + " HTYPE : " + htype + " HLEN : " + hlen + " HOPS : " + hops + "\n");
+		sb.append("XID : " + xid + " SECS : " + secs + " FLAGS : " + flags +  "\n");
+		sb.append("CIADDR : " + ciaddr + "\n");
+		sb.append("YIADDR : " + yiaddr + "\n");
+		sb.append("SIADDR : " + siaddr + "\n");
+		sb.append("GIADDR : " + giaddr + "\n");
+		sb.append("CHADDR : ");
+		for(byte b : chaddr) sb.append(b + " ");
+		sb.append("\nSNAME : " + sname + "\n");
+		sb.append("FILE : " + file + "\n");
+		sb.append("MAGIC COOKIE : ");
+		for(byte b : magicCookie) sb.append(b + " ");
+		sb.append("\n");
+		sb.append(options);
+		
+		return sb.toString();
 	}
 	
 	/*GETTERS AND SETTERS*/
 
 	public int getType() {
 		return type;
+	}
+	
+	public int getLength(){
+		return length;
+	}
+	
+	public void setLength(int length){
+		this.length = length;
 	}
 
 	public short getOp() {
@@ -252,6 +304,7 @@ public class DhcpMessage {
 	}
 
 	public String getSname() {
+		sname = BufferUtils.resize(sname, 64);
 		return sname;
 	}
 
@@ -261,11 +314,12 @@ public class DhcpMessage {
 	}
 
 	public String getFile() {
-		sname = BufferUtils.resize(sname, 128);
+		file = BufferUtils.resize(file, 128);
 		return file;
 	}
 
 	public void setFile(String file) {
+		file = BufferUtils.resize(file, 128);
 		this.file = file;
 	}
 	

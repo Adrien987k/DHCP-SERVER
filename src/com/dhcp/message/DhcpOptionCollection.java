@@ -59,9 +59,9 @@ public class DhcpOptionCollection {
 		return true;
 	}
 	
-	private int totalLength(){
+	public int totalLength(){
 		int result = 0;
-		for(DhcpOption option : options.values()) result += option.getLength();
+		for(DhcpOption option : options.values()) result += option.getTotalLength();
 		return result;
 	}
 	

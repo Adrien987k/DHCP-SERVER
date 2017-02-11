@@ -18,6 +18,11 @@ public class EndOption extends DhcpOption {
 		byte[] result = new byte[]{ (byte) 255 };
 		return result;
 	}
+	
+	@Override
+	public int getTotalLength(){
+		return 1;
+	}
 
 	@Override
 	public void parseDhcpOption(ByteBuffer buffer) throws InvalidDhcpMessageException {
