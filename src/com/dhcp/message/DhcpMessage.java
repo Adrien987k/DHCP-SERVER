@@ -44,7 +44,7 @@ public class DhcpMessage {
 	private String file;
 	
 	private final static byte[] magicCookie = { (byte) 99, (byte) 130, (byte) 83, (byte) 99, }; 
-	private DhcpOptionCollection options = null;
+	private DhcpOptionCollection options = new DhcpOptionCollection();
 	
 	public DhcpMessage(){
 		try {
@@ -59,9 +59,9 @@ public class DhcpMessage {
 		}
 	}
 	
-	public byte[] getDhcpMessageBytes(){
-		//if(length < DhcpMessage.DHCP_MESSAGE_MIN_SIZE) DhcpMessage.invalidDhcpMessage("length error");
-		//if(length > DhcpMessage.DHCP_MESSAGE_MAX_SIZE) DhcpMessage.invalidDhcpMessage("length error");
+	public byte[] getDhcpMessageBytes() throws InvalidDhcpMessageException {
+		if(length < DhcpMessage.DHCP_MESSAGE_MIN_SIZE) DhcpMessage.invalidDhcpMessage("length error");
+		if(length > DhcpMessage.DHCP_MESSAGE_MAX_SIZE) DhcpMessage.invalidDhcpMessage("length error");
 		
 		ByteBuffer buffer = ByteBuffer.allocate(length);
 		
@@ -168,6 +168,13 @@ public class DhcpMessage {
 		}
 		
 		return dhcpMessage;
+	}
+	
+	public boolean addOption(DhcpOption option){
+		if(options != null){
+			return options.addOption(option);
+		}
+		else return false;
 	}
 	
 	public String toString(){

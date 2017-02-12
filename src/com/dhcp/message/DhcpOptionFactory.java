@@ -2,6 +2,7 @@ package com.dhcp.message;
 
 import com.dhcp.message.options.EmptyOption;
 import com.dhcp.message.options.EndOption;
+import com.dhcp.message.options.IpRequestedOption;
 import com.dhcp.message.options.MessageTypeOption;
 
 public class DhcpOptionFactory {
@@ -14,8 +15,8 @@ public class DhcpOptionFactory {
 			case 3:
 			case 4:
 			case 5:
-			case 6:
-			case 7:*/
+			case 6:*/
+			case 50: return new IpRequestedOption();
 			case 53: return new MessageTypeOption();
 			case 255: return new EndOption();
 			default: DhcpMessage.invalidDhcpMessage("message received with unknow code option"); 

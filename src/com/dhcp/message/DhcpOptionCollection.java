@@ -6,7 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.dhcp.message.options.EmptyOption;
+import com.dhcp.message.options.EndOption;
 import com.dhcp.message.options.MessageTypeOption;
 import com.dhcp.util.BufferUtils;
 
@@ -14,7 +14,7 @@ public class DhcpOptionCollection {
 	
 	private Map<Short, DhcpOption> options = new HashMap<>();
 	
-	private DhcpOptionCollection(){
+	public DhcpOptionCollection(){
 		
 	}
 	
@@ -22,13 +22,14 @@ public class DhcpOptionCollection {
 		if(!isValidOptionCollection()) 
 			DhcpMessage.invalidDhcpMessage("try to send dhcp message with invalid collection of options");
 		
-		ByteBuffer buffer = ByteBuffer.allocate(totalLength());
+		ByteBuffer buffer = ByteBuffer.allocate(
+				(options.containsKey((short) 255)) ? totalLength() : totalLength() + 1);
 		
 		for(DhcpOption option : options.values()) {
 			buffer.put(option.getContent());
 		}
-		if(options.get(options.size() - 1).getCode() != (short) 255){
-			buffer.put(new EmptyOption().getContent());
+		if(!options.containsKey((short) 255)){
+			buffer.put(new EndOption().getContent());
 		}
 		
 		return buffer.array();
@@ -66,8 +67,18 @@ public class DhcpOptionCollection {
 	}
 	
 	public int getDhcpMessageType(){
-		MessageTypeOption msgTypeOpt = (MessageTypeOption) options.get((short) 53);
-		return msgTypeOpt.getType();
+		if(options.containsKey((short) 53)){
+			MessageTypeOption msgTypeOpt = (MessageTypeOption) options.get((short) 53);
+			return msgTypeOpt.getType();			
+		} else {
+			return 0;
+		}
+	}
+	
+	public String toString(){
+		StringBuilder sb = new StringBuilder();
+		for(DhcpOption option : options.values()) sb.append(option.toString());
+		return sb.toString();
 	}
 	
 	private boolean isValidOptionCollection(){

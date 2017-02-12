@@ -9,22 +9,30 @@ public abstract class DhcpOption {
 	
 	protected String name = "";
 	
-	protected byte[] content = null;
+	//protected byte[] content = null;
 	
 	public DhcpOption(short code){
 		this.code = code;
 	}
 	
-	public abstract byte[] getContent();
+	public abstract byte[] getContent() throws InvalidDhcpMessageException;
 	public abstract void parseDhcpOption(ByteBuffer buffer) throws InvalidDhcpMessageException;
 	
 	
 	public boolean contentIsValid(){
 		boolean isValid = true;
 		if(code < 0 || code > 255) isValid = false;
-		if(content == null) isValid = false;
-		if(content.length != length) isValid = false;
+		//if(content == null) isValid = false;
+		//if((length != 0) && content.length != length) isValid = false;
 		return isValid;
+	}
+	
+	public String toString(){
+		StringBuilder sb = new StringBuilder();
+		sb.append("CODE : " + code);
+		sb.append(" NAME : " + name);
+		sb.append(" LENGTH : " + length + "\n");
+		return sb.toString();
 	}
 	
 	public short getLength(){

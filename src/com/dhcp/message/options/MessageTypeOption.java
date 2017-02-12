@@ -14,6 +14,7 @@ public class MessageTypeOption extends DhcpOption {
 	public MessageTypeOption() {
 		super((short) 53);
 		
+		length = 1;
 		name = "DHCP Message Type";
 	}
 
@@ -25,6 +26,23 @@ public class MessageTypeOption extends DhcpOption {
 	
 	public int getType(){
 		return type;
+	}
+	
+	public void setType(int type){
+		this.type = (short) type;
+	}
+	
+	@Override 
+	public boolean contentIsValid(){
+		return super.contentIsValid() && type > 0 && type < 9;
+	}
+	
+	@Override
+	public String toString(){
+		StringBuilder sb = new StringBuilder();
+		sb.append(super.toString());
+		sb.append("TYPE : " + type + "\n");
+		return sb.toString();
 	}
 
 	@Override

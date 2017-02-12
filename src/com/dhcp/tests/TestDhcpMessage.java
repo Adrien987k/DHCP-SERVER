@@ -4,6 +4,10 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 
 import com.dhcp.message.DhcpMessage;
+import com.dhcp.message.DhcpOptionFactory;
+import com.dhcp.message.InvalidDhcpMessageException;
+import com.dhcp.message.options.IpRequestedOption;
+import com.dhcp.message.options.MessageTypeOption;
 
 public class TestDhcpMessage {
 		
@@ -38,12 +42,45 @@ public class TestDhcpMessage {
 		dhcpMsg.setSname("bonjour"); 
 		dhcpMsg.setFile("file");
 		
-		dhcpMsg.setLength(240); // Without option 53
+		MessageTypeOption option = null;
+		try {
+			option = (MessageTypeOption) DhcpOptionFactory.buildDhcpOption((short) 53);
+		} catch (InvalidDhcpMessageException e) {
+			System.out.println("CANNOT CREATE OPTION 53");
+		}
+		option.setType(DhcpMessage.DHCPREQUEST);
+		
+		if(!dhcpMsg.addOption(option)){
+			System.out.println("ERROR ADD OPTION 53");
+		}
+		
+		IpRequestedOption ipOption = null;
+		try {
+			ipOption = (IpRequestedOption) DhcpOptionFactory.buildDhcpOption((short) 50);
+		} catch (InvalidDhcpMessageException e) {
+			System.out.println("CANNOT CREATE OPTION 50");
+		}
+		try {
+			ipOption.addAdrress(InetAddress.getByName("192.68.102.13"));
+		} catch (UnknownHostException e) {
+			System.out.println("ERROR IP OPTION");
+		}
+		
+		if(!dhcpMsg.addOption(ipOption)){
+			System.out.println("ERROR ADD OPTION 50");
+		}
+		
+		dhcpMsg.setLength(250);
 		
 		System.out.println(dhcpMsg);
 		System.out.println();
 		
-		byte[] bufferMsg = dhcpMsg.getDhcpMessageBytes(); 
+		byte[] bufferMsg = null;
+		try {
+			bufferMsg = dhcpMsg.getDhcpMessageBytes();
+		} catch (InvalidDhcpMessageException e) {
+			System.out.println("CANNOT GET BUFFER MESSAGE BYTES");
+		} 
 		
 		int cpt = 0;
 		for(byte b : bufferMsg){
