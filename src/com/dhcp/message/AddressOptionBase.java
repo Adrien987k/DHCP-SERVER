@@ -19,7 +19,7 @@ public abstract class AddressOptionBase extends DhcpOption {
 	@Override
 	public byte[] getContent() throws InvalidDhcpMessageException {
 		if(!contentIsValid()) 
-			DhcpMessage.invalidDhcpMessage("try to send dhcp message with invalid address option");
+			DhcpMessage.invalidDhcpMessage("try to send dhcp message with invalid : " + name);
 		
 		ByteBuffer buffer = ByteBuffer.allocate(2 + (addresses.size() * 4));
 		buffer.put((byte) code);
