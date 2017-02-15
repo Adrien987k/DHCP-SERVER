@@ -1,5 +1,8 @@
 package com.dhcp.message;
 
+import java.net.UnknownHostException;
+
+import com.dhcp.message.common.DhcpOption;
 import com.dhcp.message.options.DNSOption;
 import com.dhcp.message.options.EmptyOption;
 import com.dhcp.message.options.EndOption;
@@ -12,7 +15,8 @@ import com.dhcp.message.options.SubnetMaskOption;
 public class DhcpOptionFactory {
 	
 	public static DhcpOption buildDhcpOption(short code) throws InvalidDhcpMessageException {
-		switch(code){
+		try{
+			switch(code){
 			case 0: return new EmptyOption(); 
 			case 1: return new SubnetMaskOption();
 			case 3: return new RouterOption();
@@ -25,6 +29,9 @@ public class DhcpOptionFactory {
 			case 54: return new ServerIdentifierOption();
 			case 255: return new EndOption();
 			default: DhcpMessage.invalidDhcpMessage("message received with unknow code option"); 
+		}
+		} catch(UnknownHostException e){
+			
 		}
 		return null;
 	}

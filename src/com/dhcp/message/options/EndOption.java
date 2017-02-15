@@ -2,8 +2,8 @@ package com.dhcp.message.options;
 
 import java.nio.ByteBuffer;
 
-import com.dhcp.message.DhcpOption;
 import com.dhcp.message.InvalidDhcpMessageException;
+import com.dhcp.message.common.DhcpOption;
 
 public class EndOption extends DhcpOption {
 

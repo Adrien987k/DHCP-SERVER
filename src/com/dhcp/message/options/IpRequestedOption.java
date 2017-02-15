@@ -1,10 +1,12 @@
 package com.dhcp.message.options;
 
-import com.dhcp.message.OneAddressOptionBase;
+import java.net.UnknownHostException;
+
+import com.dhcp.message.common.OneAddressOptionBase;
 
 public class IpRequestedOption extends OneAddressOptionBase {
 
-	public IpRequestedOption() {
+	public IpRequestedOption() throws UnknownHostException {
 		super((short) 50);
 		
 		name = "IP resquested Option";

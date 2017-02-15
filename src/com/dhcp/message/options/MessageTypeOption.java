@@ -3,8 +3,8 @@ package com.dhcp.message.options;
 import java.nio.ByteBuffer;
 
 import com.dhcp.message.DhcpMessage;
-import com.dhcp.message.DhcpOption;
 import com.dhcp.message.InvalidDhcpMessageException;
+import com.dhcp.message.common.DhcpOption;
 import com.dhcp.util.BufferUtils;
 
 public class MessageTypeOption extends DhcpOption {

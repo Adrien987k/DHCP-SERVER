@@ -5,6 +5,7 @@ import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 
+import com.dhcp.message.common.DhcpOption;
 import com.dhcp.util.BufferUtils;
 
 public class DhcpMessage {

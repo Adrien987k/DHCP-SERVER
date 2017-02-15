@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.dhcp.message.common.DhcpOption;
 import com.dhcp.message.options.EndOption;
 import com.dhcp.message.options.MessageTypeOption;
 import com.dhcp.util.BufferUtils;

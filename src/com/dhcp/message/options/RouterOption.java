@@ -1,10 +1,12 @@
 package com.dhcp.message.options;
 
-import com.dhcp.message.AddressOptionBase;
+import java.net.UnknownHostException;
+
+import com.dhcp.message.common.AddressOptionBase;
 
 public class RouterOption extends AddressOptionBase {
 	
-	public RouterOption(){
+	public RouterOption() throws UnknownHostException {
 		super((short) 3);
 		
 		name = "Router Option";
