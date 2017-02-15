@@ -7,7 +7,7 @@ import com.dhcp.message.common.AddressOptionBase;
 public class DNSOption extends AddressOptionBase {
 		
 	public DNSOption() throws UnknownHostException {
-		super((short) 6 );
+		super((short) 6 , false);
 		
 		name = "Domain Name Server Option";
 	}

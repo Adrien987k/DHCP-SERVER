@@ -85,7 +85,7 @@ public class EncodedTime implements Encodable {
 		sb.append("Days : " + getDays());
 		sb.append(" Hours : " + getHours());
 		sb.append(" Minutes : " + getMinutes());
-		sb.append(" Seconds : " + getSeconds());
+		sb.append(" Seconds : " + getSeconds() + "\n");
 		return sb.toString();
 	}
 	

@@ -6,6 +6,6 @@ public interface Encodable {
 	
 	public int getLength();
 	
-	public <E extends Encodable> E parseEncodable(byte[] buffer); 
+	public <E extends Encodable> E parseEncodable(byte[] buffer);
 	
 }

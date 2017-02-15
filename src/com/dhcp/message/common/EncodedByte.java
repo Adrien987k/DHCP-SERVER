@@ -23,4 +23,9 @@ public class EncodedByte implements Encodable {
 		return new EncodedByte(buffer[0]);
 	}
 	
+	@Override
+	public String toString(){
+		return b + " ";
+	}
+	
 }

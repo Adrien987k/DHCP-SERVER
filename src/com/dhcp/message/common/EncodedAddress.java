@@ -21,6 +21,7 @@ public class EncodedAddress implements Encodable {
 		return 4;
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public EncodedAddress parseEncodable(byte[] buffer) {
 		InetAddress address = null; 
@@ -34,7 +35,7 @@ public class EncodedAddress implements Encodable {
 	
 	@Override
 	public String toString(){
-		return address.toString();
+		return "ADDRESS : " + address.toString() + "\n";
 	}
 	
 }

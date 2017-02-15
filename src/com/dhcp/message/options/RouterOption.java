@@ -7,7 +7,7 @@ import com.dhcp.message.common.AddressOptionBase;
 public class RouterOption extends AddressOptionBase {
 	
 	public RouterOption() throws UnknownHostException {
-		super((short) 3);
+		super((short) 3, false);
 		
 		name = "Router Option";
 	}

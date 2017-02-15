@@ -12,6 +12,15 @@ public abstract class EncodableOptionBase<E extends Encodable> extends DhcpOptio
 	
 	protected List<E> encodables = new ArrayList<>();
 	private E instance;
+	private int encodableLength = instance.getLength();
+	
+	private boolean onlyOneElement = false;
+	
+	public EncodableOptionBase(short code, E instance, boolean onlyOneElement){
+		super(code);
+		this.instance = instance;
+		this.onlyOneElement = onlyOneElement;
+	}
 	
 	public EncodableOptionBase(short code, E instance){
 		super(code);
@@ -39,28 +48,38 @@ public abstract class EncodableOptionBase<E extends Encodable> extends DhcpOptio
 	@Override
 	public void parseDhcpOption(ByteBuffer buffer) throws InvalidDhcpMessageException {
 		length = BufferUtils.byteToShort(buffer.get());
-		int elementLength = instance.getLength();
 		
-		
-		if(length % elementLength != 0)
+		if(length % encodableLength != 0)
 			DhcpMessage.invalidDhcpMessage("dhcp message received with invalid length option : " + name);
 		
-		int numberElement = length / elementLength;
-		byte[] elementBuffer = new byte[elementLength];
-		for(int i = 0; i < numberElement; i++){
+		int numberEncodable = length / encodableLength;
+		byte[] elementBuffer = new byte[encodableLength];
+		for(int i = 0; i < numberEncodable; i++){
 			buffer.get(elementBuffer);
 			encodables.add(instance.parseEncodable(elementBuffer));
 		}
 	}
 	
 	public void addEncodable(E encodable){
+		if(onlyOneElement && encodables.size() >= 1) return;
 		encodables.add(encodable);
 		length += instance.getLength();
 	}
 	
 	@Override
 	public boolean contentIsValid(){
-		return super.contentIsValid() && (length % instance.getLength() == 0);
+		return super.contentIsValid() && (length % encodableLength == 0)
+				&& (onlyOneElement ? length == encodableLength : true);
+	}
+	
+	@Override
+	public String toString(){
+		StringBuilder sb = new StringBuilder();
+		sb.append(super.toString());
+		for(E e : encodables){
+			sb.append(e);
+		}
+		return sb.toString();
 	}
 	
 }

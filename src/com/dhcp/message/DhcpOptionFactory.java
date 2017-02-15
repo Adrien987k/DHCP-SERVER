@@ -6,8 +6,13 @@ import com.dhcp.message.common.DhcpOption;
 import com.dhcp.message.options.DNSOption;
 import com.dhcp.message.options.EmptyOption;
 import com.dhcp.message.options.EndOption;
+import com.dhcp.message.options.IPLeaseTimeOption;
 import com.dhcp.message.options.IpRequestedOption;
 import com.dhcp.message.options.MessageTypeOption;
+import com.dhcp.message.options.RebindingTimeOption;
+import com.dhcp.message.options.RenewalTimeOption;
+import com.dhcp.message.options.RebindingTimeOption;
+import com.dhcp.message.options.RenewalTimeOption;
 import com.dhcp.message.options.RouterOption;
 import com.dhcp.message.options.ServerIdentifierOption;
 import com.dhcp.message.options.SubnetMaskOption;
@@ -25,8 +30,11 @@ public class DhcpOptionFactory {
 			case 5: */
 			case 6: return new DNSOption();
 			case 50: return new IpRequestedOption();
+			case 51: return new IPLeaseTimeOption();
 			case 53: return new MessageTypeOption();
 			case 54: return new ServerIdentifierOption();
+			case 58: return new RenewalTimeOption();
+			case 59: return new RebindingTimeOption();
 			case 255: return new EndOption();
 			default: DhcpMessage.invalidDhcpMessage("message received with unknow code option"); 
 		}
