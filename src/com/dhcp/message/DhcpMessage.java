@@ -23,6 +23,9 @@ public class DhcpMessage {
 	public static final int DHCPRELEASE = 6;
 	public static final int DHCPINFORM = 7;
 	
+	public static final short BOOTREPLY = 8;
+	public static final short BOOTREQUEST = 9;
+	
 	private int type;
 	private int length = 0;
 	
