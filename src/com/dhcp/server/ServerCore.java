@@ -27,7 +27,8 @@ public class ServerCore extends Thread {
 	public void run() {
 		try(DatagramSocket ds67 = new DatagramSocket(67)) {
 			ds67.setSoTimeout(1000);
-			DatagramPacket packet = null;
+			byte[] buffer = new byte[8192];
+			DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
 			while(!stop) {
 				ds67.setBroadcast(true);
 				try {

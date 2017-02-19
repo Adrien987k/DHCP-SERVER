@@ -14,17 +14,17 @@ public class DhcpMessage {
 	public static final int DHCP_MESSAGE_MIN_SIZE = 244;
 	public static InetAddress ZERO_IP_ADDRESS = null;
 	
-	public static final int DHCPDISCOVER = 0;
-	public static final int DHCPOFFER = 1;
-	public static final int DHCPREQUEST = 2;
-	public static final int DHCPPACK = 3;
-	public static final int DHCPNAK = 4;
-	public static final int DHCPDECLINE = 5;
-	public static final int DHCPRELEASE = 6;
-	public static final int DHCPINFORM = 7;
+	public static final int DHCPDISCOVER = 1;
+	public static final int DHCPOFFER = 2;
+	public static final int DHCPREQUEST = 3;
+	public static final int DHCPDECLINE = 4;
+	public static final int DHCPPACK = 5;
+	public static final int DHCPNAK = 6;
+	public static final int DHCPRELEASE = 7;
+	public static final int DHCPINFORM = 8;
 	
-	public static final short BOOTREPLY = 8;
-	public static final short BOOTREQUEST = 9;
+	public static final short BOOTREQUEST = 1;
+	public static final short BOOTREPLY = 2;
 	
 	private int type;
 	private int length = 0;
@@ -118,8 +118,7 @@ public class DhcpMessage {
 		try{
 			if(byteTab == null) invalidDhcpMessage("empty dhcp message received");
 			
-			//Condition désactiver juste pour le test sans option
-			//if(byteTab.length < DHCP_MESSAGE_MIN_SIZE) invalidDhcpMessage("incomplete dhcp message received");
+			if(byteTab.length < DHCP_MESSAGE_MIN_SIZE) invalidDhcpMessage("incomplete dhcp message received");
 			
 			buffer = ByteBuffer.wrap(byteTab);
 			
@@ -170,6 +169,7 @@ public class DhcpMessage {
 		} catch(InvalidDhcpMessageException e){
 			//return null; 
 		}
+		dhcpMessage.setType(dhcpMessage.options.getDhcpMessageType());
 		
 		return dhcpMessage;
 	}
@@ -207,6 +207,10 @@ public class DhcpMessage {
 
 	public int getType() {
 		return type;
+	}
+	
+	public void setType(int type){
+		this.type = type;
 	}
 	
 	public int getLength(){

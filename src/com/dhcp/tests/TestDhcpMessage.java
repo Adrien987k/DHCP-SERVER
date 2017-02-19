@@ -44,11 +44,9 @@ public class TestDhcpMessage {
 		dhcpMsg.setFile("file");
 		
 		MessageTypeOption option = null;
-		try {
-			option = (MessageTypeOption) DhcpOptionFactory.buildDhcpOption((short) 53);
-		} catch (InvalidDhcpMessageException e) {
-			System.out.println("CANNOT CREATE OPTION 53");
-		}
+		
+		option = (MessageTypeOption) DhcpOptionFactory.buildDhcpOption((short) 53);
+		
 		option.setType(DhcpMessage.DHCPREQUEST);
 		
 		if(!dhcpMsg.addOption(option)){
@@ -56,11 +54,9 @@ public class TestDhcpMessage {
 		}
 		
 		IpRequestedOption ipOption = null;
-		try {
-			ipOption = (IpRequestedOption) DhcpOptionFactory.buildDhcpOption((short) 50);
-		} catch (InvalidDhcpMessageException e) {
-			System.out.println("CANNOT CREATE OPTION 50");
-		}
+	
+		ipOption = (IpRequestedOption) DhcpOptionFactory.buildDhcpOption((short) 50);
+
 		try {
 			ipOption.addEncodable(new EncodedAddress(InetAddress.getByName("192.68.102.13")));
 		} catch (UnknownHostException e) {

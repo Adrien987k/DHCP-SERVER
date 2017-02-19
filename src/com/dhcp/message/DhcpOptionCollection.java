@@ -44,9 +44,10 @@ public class DhcpOptionCollection {
 			code = BufferUtils.byteToShort(buffer.get());
 			
 			DhcpOption option = DhcpOptionFactory.buildDhcpOption(code);
+
 			option.parseDhcpOption(buffer);
-			
 			options.addOption(option);
+			
 		} while(code != (short) 255 && buffer.hasRemaining());
 			
 		if(!options.isValidOptionCollection()) 
