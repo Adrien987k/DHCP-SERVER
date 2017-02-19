@@ -1,10 +1,18 @@
 package com.dhcp.server;
 
+import java.io.IOException;
 import java.net.DatagramPacket;
+import java.net.DatagramSocket;
 import java.net.InetAddress;
+import java.net.InetSocketAddress;
+import java.net.SocketException;
 import java.net.UnknownHostException;
 
 import com.dhcp.message.DhcpMessage;
+import com.dhcp.message.DhcpOptionCollection;
+import com.dhcp.message.InvalidDhcpMessageException;
+import com.dhcp.message.options.IPLeaseTimeOption;
+import com.dhcp.message.options.ServerIdentifierOption;
 import com.dhcp.util.ServerLogger;
 
 public class HandlerDHCPMessage extends Thread {
@@ -40,7 +48,7 @@ public class HandlerDHCPMessage extends Thread {
 		
 		try {
 			response.setCiaddr(InetAddress.getByAddress(new byte[4]));
-			//TODO ajouter l'adresse IP response.setYiaddr();
+			//TODO ajouter l'adresse IP: response.setYiaddr();
 			response.setSiaddr(InetAddress.getLocalHost());
 			response.setGiaddr(message.getGiaddr());
 			response.setChaddr(message.getChaddr());
@@ -48,7 +56,25 @@ public class HandlerDHCPMessage extends Thread {
 			e.printStackTrace();
 		}
 		
-		//..
+		DhcpOptionCollection options = new DhcpOptionCollection();
+		
+		if(/* Un lease time est demandé */false) { 
+			
+		} else {
+			options.addOption(new IPLeaseTimeOption());
+		}
+		
+		try {
+			options.addOption(new ServerIdentifierOption());
+		} catch (UnknownHostException e) {
+			e.printStackTrace();
+		}
+		
+		response.setOptions(options);
+		
+		if(sendResponse(response))
+			return true;
+		
 		return false;
 	}
 
@@ -60,6 +86,45 @@ public class HandlerDHCPMessage extends Thread {
 	private boolean handleRELEASE(DhcpMessage message) {
 		//TODO non commencé
 		return false;
+	}
+	
+	private boolean sendResponse(DhcpMessage message) {
+		
+		try {
+			
+			DatagramSocket ds = new DatagramSocket();
+			ds.setBroadcast(true);
+			
+			DatagramPacket response;
+			if(message.getCiaddr().getAddress()[0] != 0 )
+				response = new DatagramPacket(message.getDhcpMessageBytes()
+						,message.getDhcpMessageBytes().length
+						,InetAddress.getByAddress(message.getChaddr())
+						,68);		
+			else { 
+				response = new DatagramPacket(message.getDhcpMessageBytes()
+						,message.getDhcpMessageBytes().length
+						,InetAddress.getByAddress(new byte[] {1,1,1,1})
+						,68);
+				}
+			
+			ds.send(response);
+				
+		} catch (SocketException e) {
+			e.printStackTrace();
+			return false;
+		} catch (UnknownHostException e) {
+			e.printStackTrace();
+			return false;
+		} catch (InvalidDhcpMessageException e) {
+			e.printStackTrace();
+			return false;
+		} catch (IOException e) {
+			e.printStackTrace();
+			return false;
+		}
+		
+		return true;
 	}
 	
 }
