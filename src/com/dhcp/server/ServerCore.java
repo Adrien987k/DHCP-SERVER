@@ -7,6 +7,7 @@ import java.net.SocketException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import com.dhcp.message.DhcpMessage;
 import com.dhcp.util.ServerLogger;
 
 
@@ -41,5 +42,4 @@ public class ServerCore extends Thread {
 			se.printStackTrace();
 		}
 	}
-	
 }

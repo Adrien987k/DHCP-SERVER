@@ -21,5 +21,4 @@ public class BufferUtils {
 		return Integer.toUnsignedLong(b);
 	}
 	
-	
 }
