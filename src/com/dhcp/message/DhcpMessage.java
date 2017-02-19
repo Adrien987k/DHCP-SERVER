@@ -123,8 +123,8 @@ public class DhcpMessage {
 			buffer = ByteBuffer.wrap(byteTab);
 			
 			short op = BufferUtils.byteToShort(buffer.get());
-			if(op == 2) invalidDhcpMessage("BOOTREPLY received");
-			if(op != 1 && op != 2) invalidDhcpMessage("dhcp message received with invalid op field");
+			if(op == BOOTREPLY) invalidDhcpMessage("BOOTREPLY received");
+			if(op != BOOTREQUEST && op != BOOTREPLY) invalidDhcpMessage("dhcp message received with invalid op field");
 			dhcpMessage.setOp(op);
 			
 			dhcpMessage.setHtype(BufferUtils.byteToShort(buffer.get()));

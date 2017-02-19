@@ -4,6 +4,7 @@ import java.nio.ByteBuffer;
 
 import com.dhcp.message.InvalidDhcpMessageException;
 import com.dhcp.message.common.DhcpOption;
+import com.dhcp.util.BufferUtils;
 
 public class UnknowOption extends DhcpOption {
 	
@@ -15,17 +16,17 @@ public class UnknowOption extends DhcpOption {
 
 	@Override
 	public byte[] getContent() {
-		byte[] result = new byte[]{ (byte) code };
+		byte[] result = new byte[]{ (byte) code , (byte) length};
 		return result;
-	}
-	
-	@Override
-	public int getTotalLength(){
-		return 1;
 	}
 
 	@Override
 	public void parseDhcpOption(ByteBuffer buffer) throws InvalidDhcpMessageException {
+		length = BufferUtils.byteToShort(buffer.get());
+		
+		for(int i = 0; i < length; i++){
+			buffer.get();
+		}
 		
 	}
 	
