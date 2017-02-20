@@ -42,4 +42,7 @@ public class ServerCore extends Thread {
 			se.printStackTrace();
 		}
 	}
+
+
+	
 }

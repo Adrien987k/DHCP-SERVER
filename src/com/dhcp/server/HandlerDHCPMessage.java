@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
-import java.net.InetSocketAddress;
 import java.net.SocketException;
 import java.net.UnknownHostException;
 
@@ -58,9 +57,10 @@ public class HandlerDHCPMessage extends Thread {
 		
 		DhcpOptionCollection options = new DhcpOptionCollection();
 		
-		if(/* Un lease time est demandé */false) { 
+		if(/* Si un lease time est demandé */false) { 
 			
 		} else {
+			//sinon attribuer celui par défaut
 			options.addOption(new IPLeaseTimeOption());
 		}
 		
@@ -79,7 +79,11 @@ public class HandlerDHCPMessage extends Thread {
 	}
 
 	private boolean handleREQUEST(DhcpMessage message) {
-		//TODO non commencé
+		//TODO non terminé
+		
+		DhcpMessage response = new DhcpMessage();
+		
+		response.setHtype(DhcpMessage.BOOTREPLY);
 		return false;
 	}
 	
