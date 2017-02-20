@@ -5,9 +5,11 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketException;
+import java.util.TreeMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import com.dhcp.lease.Lease;
 import com.dhcp.util.ServerLogger;
 
 
@@ -16,6 +18,8 @@ public class ServerCore extends Thread {
 	private boolean stop = false;
 	private ServerLogger logger = null;
 	private ExecutorService pool = null;
+	
+	private static TreeMap<InetAddress, Lease> leases = new TreeMap<>();
 	
 	public ServerCore() throws IOException {
 		logger = new ServerLogger();
@@ -44,17 +48,26 @@ public class ServerCore extends Thread {
 		}
 	}
 
-	public static synchronized InetAddress getRandIPAddress() {
-					
+	public static synchronized InetAddress getRandIPAddress(InetAddress hardwareAddress) {
+		//TODO non terminé
+		
+		//Lease lease = new Lease(/* addresse ip*/,hardwareAddress,/* duration */);
+		//leases.put(lease.getIPAddress(), lease);
+		//return lease.getIPAddress();
+		
 		return null;
 	}
 	
-	public static synchronized boolean getIPAddress(InetAddress address) {
-		
-		return false;
+	public static synchronized InetAddress tryOldIPAddressElseRand(InetAddress ipAddress, InetAddress hardwareAddress) {
+		if(leases.get(ipAddress).isAvailable()) {
+			leases.get(ipAddress).bind(hardwareAddress);
+			return ipAddress;
+		} else {
+			return getRandIPAddress(hardwareAddress);
+		}
 	}
 	
-	public static synchronized void releaseIPAddress(InetAddress address) {
-		
+	public static synchronized void release(InetAddress address) {
+		leases.get(address).release(false);
 	}
 }

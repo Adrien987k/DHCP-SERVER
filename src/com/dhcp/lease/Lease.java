@@ -1,4 +1,4 @@
-package com.dhcp.message.common;
+package com.dhcp.lease;
 
 import java.net.InetAddress;
 import java.util.ArrayList;
@@ -16,7 +16,7 @@ public class Lease {
 		this.currentHardwareAddress = hardwareAddress;
 		this.knownHardwareAddresses.add(hardwareAddress);
 		this.duration = duration;
-		isAvailable = false;
+		setUnavailable();
 	}
 	
 	public int getDuration() {

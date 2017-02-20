@@ -151,7 +151,7 @@ public class HandlerDHCPMessage extends Thread {
 		//TODO non terminé
 		
 		if(message.getCiaddr().getAddress()[0] != 0) {
-			ServerCore.releaseIPAddress(message.getCiaddr());
+			ServerCore.release(message.getCiaddr());
 			return true;
 		}
 		return false;
