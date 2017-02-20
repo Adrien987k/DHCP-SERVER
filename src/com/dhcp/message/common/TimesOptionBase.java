@@ -6,4 +6,10 @@ public class TimesOptionBase extends EncodableOptionBase<EncodedTime> {
 		super(code, new EncodedTime(0), onlyOneElement);
 	}
 	
+	public void addTime(long day, long hour, long minute, long second) {
+		addEncodable(new EncodedTime(day, hour, minute, second));
+	}
+	public void addTime(long seconds) {
+		addEncodable(new EncodedTime(seconds));
+	}
 }

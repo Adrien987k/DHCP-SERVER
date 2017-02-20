@@ -342,6 +342,10 @@ public class DhcpMessage {
 		this.options = options;
 	}
 	
+	public DhcpOptionCollection getOptions() {
+		return options;
+	}
+	
 	/*END OF GETTERS AND SETTERS*/
 	
 	

@@ -10,6 +10,7 @@ import java.net.UnknownHostException;
 import com.dhcp.message.DhcpMessage;
 import com.dhcp.message.DhcpOptionCollection;
 import com.dhcp.message.InvalidDhcpMessageException;
+import com.dhcp.message.common.EncodedAddress;
 import com.dhcp.message.options.IPLeaseTimeOption;
 import com.dhcp.message.options.MessageTypeOption;
 import com.dhcp.message.options.ServerIdentifierOption;
@@ -82,7 +83,6 @@ public class HandlerDHCPMessage extends Thread {
 		typeOption.setType(DhcpMessage.DHCPOFFER);
 		options.addOption(typeOption);
 		
-		//TODO
 		response.setSname("");
 		response.setFile("");
 		
@@ -121,8 +121,7 @@ public class HandlerDHCPMessage extends Thread {
 		
 		DhcpOptionCollection options = new DhcpOptionCollection();
 		
-		//TODO: à récupérer depuis le REQUEST
-		options.addOption(new IPLeaseTimeOption());
+		options.addOption(message.getOptions().getByCode((short) 51));
 		
 		
 		MessageTypeOption typeOption = new MessageTypeOption();
@@ -130,12 +129,13 @@ public class HandlerDHCPMessage extends Thread {
 		options.addOption(typeOption);
 		
 		try {
-			options.addOption(new ServerIdentifierOption());
+			ServerIdentifierOption sio = new ServerIdentifierOption();
+			sio.addEncodable(new EncodedAddress(InetAddress.getLocalHost()));
+			options.addOption(sio);
 		} catch (UnknownHostException e) {
 			e.printStackTrace();
 		}
 		
-		//TODO
 		response.setSname("");
 		response.setFile("");
 		

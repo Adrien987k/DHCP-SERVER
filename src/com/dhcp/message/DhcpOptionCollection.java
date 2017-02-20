@@ -105,4 +105,8 @@ public class DhcpOptionCollection {
 			   && allOptionAreValid;
 	}
 	
+	public DhcpOption getByCode(short code) {
+		return options.get(code);
+	}
+	
 }
