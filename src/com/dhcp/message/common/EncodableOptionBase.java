@@ -12,13 +12,14 @@ public abstract class EncodableOptionBase<E extends Encodable> extends DhcpOptio
 	
 	protected List<E> encodables = new ArrayList<>();
 	private E instance;
-	private int encodableLength = instance.getLength();
+	private int encodableLength;
 	
 	private boolean onlyOneElement = false;
 	
 	public EncodableOptionBase(short code, E instance, boolean onlyOneElement){
 		super(code);
 		this.instance = instance;
+		this.encodableLength = instance.getLength();
 		this.onlyOneElement = onlyOneElement;
 	}
 	

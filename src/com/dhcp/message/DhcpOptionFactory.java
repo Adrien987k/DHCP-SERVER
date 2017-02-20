@@ -11,15 +11,14 @@ import com.dhcp.message.options.IpRequestedOption;
 import com.dhcp.message.options.MessageTypeOption;
 import com.dhcp.message.options.RebindingTimeOption;
 import com.dhcp.message.options.RenewalTimeOption;
-import com.dhcp.message.options.RebindingTimeOption;
-import com.dhcp.message.options.RenewalTimeOption;
 import com.dhcp.message.options.RouterOption;
 import com.dhcp.message.options.ServerIdentifierOption;
 import com.dhcp.message.options.SubnetMaskOption;
+import com.dhcp.message.options.UnknowOption;
 
 public class DhcpOptionFactory {
 	
-	public static DhcpOption buildDhcpOption(short code) throws InvalidDhcpMessageException {
+	public static DhcpOption buildDhcpOption(short code) {
 		try{
 			switch(code){
 			case 0: return new EmptyOption(); 
@@ -36,7 +35,7 @@ public class DhcpOptionFactory {
 			case 58: return new RenewalTimeOption();
 			case 59: return new RebindingTimeOption();
 			case 255: return new EndOption();
-			default: DhcpMessage.invalidDhcpMessage("message received with unknow code option"); 
+			default: return new UnknowOption(code);
 		}
 		} catch(UnknownHostException e){
 			

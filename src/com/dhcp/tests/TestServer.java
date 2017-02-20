@@ -1,0 +1,18 @@
+package com.dhcp.tests;
+
+import java.io.IOException;
+
+import com.dhcp.server.ServerCore;
+
+public class TestServer {
+	
+	public static void main(String[] args) {
+		try {
+			ServerCore serverCore = new ServerCore();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
+}

@@ -24,6 +24,8 @@ public class HandlerDHCPMessage extends Thread {
 	}
 	
 	private void handle(DhcpMessage message) {
+		System.out.println(message);
+		
 		switch(message.getType()) {
 			case DhcpMessage.DHCPDISCOVER: handleDISCOVER(message); break;
 			case DhcpMessage.DHCPREQUEST: handleREQUEST(message); break;
