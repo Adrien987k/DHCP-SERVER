@@ -11,12 +11,16 @@ import com.dhcp.message.DhcpMessage;
 import com.dhcp.message.DhcpOptionCollection;
 import com.dhcp.message.InvalidDhcpMessageException;
 import com.dhcp.message.options.IPLeaseTimeOption;
+import com.dhcp.message.options.MessageTypeOption;
 import com.dhcp.message.options.ServerIdentifierOption;
 import com.dhcp.util.ServerLogger;
 
 public class HandlerDHCPMessage extends Thread {
 
 	ServerLogger logger;
+	
+	//TODO: déterminer cette addresse
+	InetAddress ciAddressSelected;
 	public HandlerDHCPMessage(DatagramPacket packet, ServerLogger logger) {
 		this.logger = logger;
 		DhcpMessage message = DhcpMessage.parseDhcpPacket(packet.getData());
@@ -49,7 +53,7 @@ public class HandlerDHCPMessage extends Thread {
 		
 		try {
 			response.setCiaddr(InetAddress.getByAddress(new byte[4]));
-			//TODO ajouter l'adresse IP: response.setYiaddr();
+			response.setYiaddr(ciAddressSelected);
 			response.setSiaddr(InetAddress.getLocalHost());
 			response.setGiaddr(message.getGiaddr());
 			response.setChaddr(message.getChaddr());
@@ -58,19 +62,27 @@ public class HandlerDHCPMessage extends Thread {
 		}
 		
 		DhcpOptionCollection options = new DhcpOptionCollection();
-		
-		if(/* Si un lease time est demandé */false) { 
+		/* Si un lease time est demandé 
+		if() { 
 			
 		} else {
-			//sinon attribuer celui par défaut
+			sinon attribuer celui par défaut */
 			options.addOption(new IPLeaseTimeOption());
-		}
+		//}
 		
 		try {
 			options.addOption(new ServerIdentifierOption());
 		} catch (UnknownHostException e) {
 			e.printStackTrace();
 		}
+		
+		MessageTypeOption typeOption = new MessageTypeOption();
+		typeOption.setType(DhcpMessage.DHCPOFFER);
+		options.addOption(typeOption);
+		
+		//TODO
+		response.setSname("");
+		response.setFile("");
 		
 		response.setOptions(options);
 		
@@ -85,12 +97,57 @@ public class HandlerDHCPMessage extends Thread {
 		
 		DhcpMessage response = new DhcpMessage();
 		
-		response.setHtype(DhcpMessage.BOOTREPLY);
+		response.setOp(DhcpMessage.BOOTREPLY);
+		response.setHtype( (short) 1 );
+		response.setLength( (short) 6 );
+		response.setHops( (short) 0 );
+		
+		response.setXid(message.getXid());
+		response.setSecs(0);
+		response.setFlags(message.getFlags());
+		
+		try {
+			response.setCiaddr(message.getCiaddr());
+			response.setYiaddr(ciAddressSelected);
+			response.setSiaddr(InetAddress.getLocalHost());
+			response.setGiaddr(message.getGiaddr());
+			response.setChaddr(message.getChaddr());
+		} catch (UnknownHostException e) {
+			e.printStackTrace();
+		}
+		
+		
+		DhcpOptionCollection options = new DhcpOptionCollection();
+		
+		//TODO: à récupérer depuis le REQUEST
+		options.addOption(new IPLeaseTimeOption());
+		
+		
+		MessageTypeOption typeOption = new MessageTypeOption();
+		typeOption.setType(DhcpMessage.DHCPPACK);
+		options.addOption(typeOption);
+		
+		try {
+			options.addOption(new ServerIdentifierOption());
+		} catch (UnknownHostException e) {
+			e.printStackTrace();
+		}
+		
+		//TODO
+		response.setSname("");
+		response.setFile("");
+		
+		response.setOptions(options);
+		
+		if(sendResponse(response))
+			return true;
+				
 		return false;
 	}
 	
 	private boolean handleRELEASE(DhcpMessage message) {
-		//TODO non commencé
+		//TODO non terminé
+		
 		return false;
 	}
 	
@@ -115,7 +172,7 @@ public class HandlerDHCPMessage extends Thread {
 				}
 			
 			ds.send(response);
-				
+			ds.close();
 		} catch (SocketException e) {
 			e.printStackTrace();
 			return false;
@@ -129,6 +186,7 @@ public class HandlerDHCPMessage extends Thread {
 			e.printStackTrace();
 			return false;
 		}
+		
 		
 		return true;
 	}
