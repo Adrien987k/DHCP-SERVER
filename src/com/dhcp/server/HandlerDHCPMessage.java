@@ -169,7 +169,7 @@ public class HandlerDHCPMessage extends Thread {
 			if(message.getCiaddr().getAddress()[0] != 0 )
 				response = new DatagramPacket(message.getDhcpMessageBytes()
 						,message.getDhcpMessageBytes().length
-						,InetAddress.getByAddress(message.getChaddr())
+						,InetAddress.getByAddress(message.getChaddr().getBytes())
 						,68);		
 			else { 
 				response = new DatagramPacket(message.getDhcpMessageBytes()

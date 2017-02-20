@@ -9,6 +9,7 @@ import com.dhcp.message.InvalidDhcpMessageException;
 import com.dhcp.message.common.EncodedAddress;
 import com.dhcp.message.options.IpRequestedOption;
 import com.dhcp.message.options.MessageTypeOption;
+import com.dhcp.util.HardwareAddress;
 
 public class TestDhcpMessage {
 		
@@ -33,11 +34,12 @@ public class TestDhcpMessage {
 			e.printStackTrace();
 		} 
 		
-		byte[] chaddr = new byte[]{ (byte) 0, (byte) 5, (byte) 234, (byte) 4,
+		byte[] hardwareAddressBytes = new byte[]{ (byte) 0, (byte) 5, (byte) 234, (byte) 4,
 									(byte) 255, (byte) 123, (byte) 0, (byte) 0,
 									(byte) 0, (byte) 0, (byte) 0, (byte) 0,
 									(byte) 0, (byte) 0, (byte) 0, (byte) 0,
 				                  };
+		HardwareAddress chaddr = new HardwareAddress(hardwareAddressBytes);
 		dhcpMsg.setChaddr(chaddr); 
 		
 		dhcpMsg.setSname("bonjour"); 

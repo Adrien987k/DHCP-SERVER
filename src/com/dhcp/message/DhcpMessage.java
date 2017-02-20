@@ -7,6 +7,7 @@ import java.util.Arrays;
 
 import com.dhcp.message.common.DhcpOption;
 import com.dhcp.util.BufferUtils;
+import com.dhcp.util.HardwareAddress;
 
 public class DhcpMessage {
 	
@@ -42,7 +43,7 @@ public class DhcpMessage {
 	private InetAddress yiaddr;
 	private InetAddress siaddr;
 	private InetAddress giaddr;
-	private byte[] chaddr;
+	private HardwareAddress chaddr;
 	
 	private String sname;
 	private String file;
@@ -81,7 +82,7 @@ public class DhcpMessage {
 		buffer.put(yiaddr != null ? yiaddr.getAddress() : ZERO_IP_ADDRESS.getAddress());
 		buffer.put(siaddr != null ? siaddr.getAddress() : ZERO_IP_ADDRESS.getAddress());
 		buffer.put(giaddr != null ? giaddr.getAddress() : ZERO_IP_ADDRESS.getAddress());
-		buffer.put(chaddr, 0, 16);
+		buffer.put(chaddr.getBytes());
 		
 		buffer.put(getSname().getBytes());
 		buffer.put(getFile().getBytes());
@@ -93,8 +94,6 @@ public class DhcpMessage {
 		} catch (InvalidDhcpMessageException e) {
 			//TODO do something
 		}
-		
-		//buffer.flip();
 		
 		return buffer.array();
 	}
@@ -147,9 +146,7 @@ public class DhcpMessage {
 			} catch (UnknownHostException e) {
 				invalidDhcpMessage("dhcp message with incorrect adresses received");
 			}
-			buf = new byte[16];
-			buffer.get(buf);
-			dhcpMessage.setChaddr(buf);
+			dhcpMessage.setChaddr(HardwareAddress.parseHardwareAddress(buffer));
 			buf = new byte[64];
 			buffer.get(buf);
 			dhcpMessage.setSname(new String(buf));
@@ -192,7 +189,7 @@ public class DhcpMessage {
 		sb.append("SIADDR : " + siaddr + "\n");
 		sb.append("GIADDR : " + giaddr + "\n");
 		sb.append("CHADDR : ");
-		for(byte b : chaddr) sb.append(b + " ");
+		for(byte b : chaddr.getBytes()) sb.append(b + " ");
 		sb.append("\nSNAME : " + sname + "\n");
 		sb.append("FILE : " + file + "\n");
 		sb.append("MAGIC COOKIE : ");
@@ -309,12 +306,11 @@ public class DhcpMessage {
 		this.giaddr = giaddr;
 	}
 
-	public byte[] getChaddr() {
+	public HardwareAddress getChaddr() {
 		return chaddr;
 	}
 
-	public void setChaddr(byte[] chaddr) {
-		chaddr = Arrays.copyOf(chaddr, 16);
+	public void setChaddr(HardwareAddress chaddr) {
 		this.chaddr = chaddr;
 	}
 

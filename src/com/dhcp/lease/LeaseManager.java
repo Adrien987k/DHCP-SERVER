@@ -3,11 +3,13 @@ package com.dhcp.lease;
 import java.net.InetAddress;
 import java.util.TreeMap;
 
+import com.dhcp.util.HardwareAddress;
+
 public class LeaseManager {
 
 	private static TreeMap<InetAddress, Lease> leases = new TreeMap<>();
 	
-	public static synchronized InetAddress getRandIPAddress(InetAddress hardwareAddress) {
+	public static synchronized InetAddress getRandIPAddress(HardwareAddress hardwareAddress) {
 			//TODO non terminé
 			
 			//Lease lease = new Lease(/* addresse ip*/,hardwareAddress,/* duration */);
@@ -17,7 +19,7 @@ public class LeaseManager {
 			return null;
 		}
 	
-	public static synchronized InetAddress tryOldIPAddressElseRand(InetAddress ipAddress, InetAddress hardwareAddress) {
+	public static synchronized InetAddress tryOldIPAddressElseRand(InetAddress ipAddress, HardwareAddress hardwareAddress) {
 		if(leases.get(ipAddress).isAvailable()) {
 			leases.get(ipAddress).bind(hardwareAddress);
 			return ipAddress;

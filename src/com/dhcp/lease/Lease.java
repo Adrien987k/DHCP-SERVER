@@ -3,15 +3,17 @@ package com.dhcp.lease;
 import java.net.InetAddress;
 import java.util.ArrayList;
 
+import com.dhcp.util.HardwareAddress;
+
 public class Lease {
 	private InetAddress ipAddress;
-	private InetAddress currentHardwareAddress;
-	private ArrayList<InetAddress> knownHardwareAddresses = new ArrayList<>();
+	private HardwareAddress currentHardwareAddress;
+	private ArrayList<HardwareAddress> knownHardwareAddresses = new ArrayList<>();
 	
 	private long duration;
 	private boolean isAvailable = true;
 	
-	public Lease(InetAddress ipAddress, InetAddress hardwareAddress, int duration) {
+	public Lease(InetAddress ipAddress, HardwareAddress hardwareAddress, int duration) {
 		this.ipAddress = ipAddress;
 		this.currentHardwareAddress = hardwareAddress;
 		this.knownHardwareAddresses.add(hardwareAddress);
@@ -37,10 +39,10 @@ public class Lease {
 		return ipAddress;
 	}
 	
-	public InetAddress getHardwareAddress() {
+	public HardwareAddress getHardwareAddress() {
 		return currentHardwareAddress;
 	}
-	private void setHardwareAddress(InetAddress hardwareAddress) {
+	private void setHardwareAddress(HardwareAddress hardwareAddress) {
 		this.currentHardwareAddress = hardwareAddress;
 		if(!hardwareAddressIsKnown(hardwareAddress))
 			knownHardwareAddresses.add(hardwareAddress);
@@ -66,18 +68,18 @@ public class Lease {
 		setAvailable();
 	}
 	
-	public void bind(InetAddress hardwareAddress) {
+	public void bind(HardwareAddress hardwareAddress) {
 		setHardwareAddress(hardwareAddress);
 		setUnavailable();
 	}
 	
-	public void bind(InetAddress hardwareAddress, long duration) {
+	public void bind(HardwareAddress hardwareAddress, long duration) {
 		setHardwareAddress(hardwareAddress);
 		setDuration(duration);
 		setUnavailable();
 	}
 	
-	public boolean hardwareAddressIsKnown(InetAddress hardwareAddress) {
+	public boolean hardwareAddressIsKnown(HardwareAddress hardwareAddress) {
 		return knownHardwareAddresses.contains(hardwareAddress);
 	}
 }
