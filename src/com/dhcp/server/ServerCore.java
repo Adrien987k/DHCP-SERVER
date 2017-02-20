@@ -3,6 +3,7 @@ package com.dhcp.server;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
+import java.net.InetAddress;
 import java.net.SocketException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -43,6 +44,17 @@ public class ServerCore extends Thread {
 		}
 	}
 
-
+	public static synchronized InetAddress getRandIPAddress() {
+					
+		return null;
+	}
 	
+	public static synchronized boolean getIPAddress(InetAddress address) {
+		
+		return false;
+	}
+	
+	public static synchronized void releaseIPAddress(InetAddress address) {
+		
+	}
 }

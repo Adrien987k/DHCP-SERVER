@@ -21,6 +21,8 @@ public class HandlerDHCPMessage extends Thread {
 	
 	//TODO: déterminer cette addresse
 	InetAddress ciAddressSelected;
+	
+	
 	public HandlerDHCPMessage(DatagramPacket packet, ServerLogger logger) {
 		this.logger = logger;
 		DhcpMessage message = DhcpMessage.parseDhcpPacket(packet.getData());
@@ -34,7 +36,7 @@ public class HandlerDHCPMessage extends Thread {
 			case DhcpMessage.DHCPDISCOVER: handleDISCOVER(message); break;
 			case DhcpMessage.DHCPREQUEST: handleREQUEST(message); break;
 			case DhcpMessage.DHCPRELEASE: handleRELEASE(message); break;
-			default: throw new IllegalArgumentException("This DHCP message type is not supported yet");
+			default: throw new IllegalArgumentException("This DHCP message type is not supported.");
 		}
 	}
 	
@@ -148,6 +150,10 @@ public class HandlerDHCPMessage extends Thread {
 	private boolean handleRELEASE(DhcpMessage message) {
 		//TODO non terminé
 		
+		if(message.getCiaddr().getAddress()[0] != 0) {
+			ServerCore.releaseIPAddress(message.getCiaddr());
+			return true;
+		}
 		return false;
 	}
 	
