@@ -6,9 +6,9 @@ import java.util.ArrayList;
 public class Lease {
 	private InetAddress ipAddress;
 	private InetAddress currentHardwareAddress;
-	private ArrayList<InetAddress> knownHardwareAddresses = new ArrayList<>();;
+	private ArrayList<InetAddress> knownHardwareAddresses = new ArrayList<>();
 	
-	private int duration;
+	private long duration;
 	private boolean isAvailable = true;
 	
 	public Lease(InetAddress ipAddress, InetAddress hardwareAddress, int duration) {
@@ -19,18 +19,18 @@ public class Lease {
 		setUnavailable();
 	}
 	
-	public int getDuration() {
+	public long getDuration() {
 		return duration;
 	}
-	private void setDuration(int duration) {
+	private void setDuration(long duration) {
 		this.duration = duration;
 	}
 	
-	public int getT1() {
+	public long getT1() {
 		return duration/2;
 	}
-	public int getT2() {
-		return ( (int) ( (float) duration *0.875 ) );
+	public long getT2() {
+		return ( (long) ( (float) duration *0.875 ) );
 	}
 	
 	public InetAddress getIPAddress() {
@@ -71,7 +71,7 @@ public class Lease {
 		setUnavailable();
 	}
 	
-	public void bind(InetAddress hardwareAddress, int duration) {
+	public void bind(InetAddress hardwareAddress, long duration) {
 		setHardwareAddress(hardwareAddress);
 		setDuration(duration);
 		setUnavailable();

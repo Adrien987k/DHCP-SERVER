@@ -7,6 +7,7 @@ import java.net.InetAddress;
 import java.net.SocketException;
 import java.net.UnknownHostException;
 
+import com.dhcp.lease.LeaseManager;
 import com.dhcp.message.DhcpMessage;
 import com.dhcp.message.DhcpOptionCollection;
 import com.dhcp.message.InvalidDhcpMessageException;
@@ -151,7 +152,7 @@ public class HandlerDHCPMessage extends Thread {
 		//TODO non terminé
 		
 		if(message.getCiaddr().getAddress()[0] != 0) {
-			ServerCore.release(message.getCiaddr());
+			LeaseManager.release(message.getCiaddr());
 			return true;
 		}
 		return false;
@@ -173,7 +174,7 @@ public class HandlerDHCPMessage extends Thread {
 			else { 
 				response = new DatagramPacket(message.getDhcpMessageBytes()
 						,message.getDhcpMessageBytes().length
-						,InetAddress.getByAddress(new byte[] {1,1,1,1})
+						,InetAddress.getByName("255.255.255.255")
 						,68);
 				}
 			
