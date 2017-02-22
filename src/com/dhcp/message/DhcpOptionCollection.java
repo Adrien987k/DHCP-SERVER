@@ -27,10 +27,10 @@ public class DhcpOptionCollection {
 				(options.containsKey((short) 255)) ? totalLength() : totalLength() + 1);
 		
 		for(DhcpOption option : options.values()) {
-			buffer.put(option.getContent());
+			buffer.put(option.getBytes());
 		}
 		if(!options.containsKey((short) 255)){
-			buffer.put(new EndOption().getContent());
+			buffer.put(new EndOption().getBytes());
 		}
 		
 		return buffer.array();

@@ -8,4 +8,6 @@ public interface Encodable {
 	
 	public <E extends Encodable> E parseEncodable(byte[] buffer);
 	
+	public <F extends Object> F getElement();
+	
 }

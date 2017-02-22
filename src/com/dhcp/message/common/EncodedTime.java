@@ -66,6 +66,11 @@ public class EncodedTime implements Encodable {
 	}
 	
 	@Override
+	public EncodedTime getElement(){
+		return this;
+	}
+	
+	@Override
 	public int getLength(){
 		return 4;
 	}

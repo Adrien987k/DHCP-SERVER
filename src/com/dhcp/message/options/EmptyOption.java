@@ -14,7 +14,7 @@ public class EmptyOption extends DhcpOption {
 	}
 
 	@Override
-	public byte[] getContent() {
+	public byte[] getBytes() {
 		byte[] result = { (byte) 0 }; 
 		return result;
 	}

@@ -14,7 +14,7 @@ public class EndOption extends DhcpOption {
 	}
 
 	@Override
-	public byte[] getContent() {
+	public byte[] getBytes() {
 		byte[] result = new byte[]{ (byte) 255 };
 		return result;
 	}

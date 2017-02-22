@@ -33,6 +33,10 @@ public class EncodedAddress implements Encodable {
 		return new EncodedAddress(address);
 	}
 	
+	public InetAddress getElement(){
+		return address;
+	}
+	
 	@Override
 	public String toString(){
 		return "ADDRESS : " + address.toString() + "\n";

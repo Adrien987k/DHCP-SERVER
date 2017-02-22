@@ -24,6 +24,11 @@ public class EncodedByte implements Encodable {
 	}
 	
 	@Override
+	public Byte getElement(){
+		return b;
+	}
+	
+	@Override
 	public String toString(){
 		return b + " ";
 	}

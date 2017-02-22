@@ -28,8 +28,14 @@ public abstract class EncodableOptionBase<E extends Encodable> extends DhcpOptio
 		this.instance = instance;
 	}
 	
+	public List<E> getEncodables(){
+		return encodables;
+	}
+	
+	public abstract List<? extends Object> getElements();
+	
 	@Override
-	public byte[] getContent() throws InvalidDhcpMessageException {
+	public byte[] getBytes() throws InvalidDhcpMessageException {
 		if(!contentIsValid())
 			DhcpMessage.invalidDhcpMessage("try to send dhcp message with invalid : " + name);
 		

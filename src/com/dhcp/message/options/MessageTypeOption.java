@@ -19,7 +19,7 @@ public class MessageTypeOption extends DhcpOption {
 	}
 
 	@Override
-	public byte[] getContent() {
+	public byte[] getBytes() {
 		byte[] result = new byte[]{ (byte) 53, (byte) 1, (byte) type };
 		return result;
 	}
