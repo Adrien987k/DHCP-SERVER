@@ -149,7 +149,7 @@ public class HandlerDHCPMessage extends Thread {
 	}
 	
 	private boolean handleRELEASE(DhcpMessage message) {
-		//TODO non terminé
+		//TODO normalement terminé
 		
 		if(message.getCiaddr().getAddress()[0] != 0) {
 			LeaseManager.release(message.getCiaddr());
@@ -169,7 +169,7 @@ public class HandlerDHCPMessage extends Thread {
 			if(message.getCiaddr().getAddress()[0] != 0 )
 				response = new DatagramPacket(message.getDhcpMessageBytes()
 						,message.getDhcpMessageBytes().length
-						,InetAddress.getByAddress(message.getChaddr().getBytes())
+						,message.getCiaddr()
 						,68);		
 			else { 
 				response = new DatagramPacket(message.getDhcpMessageBytes()
