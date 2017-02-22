@@ -34,7 +34,7 @@ public class ServerConfig {
 			this.ipAddressBandEnd = InetAddress.getByName(properties.getProperty("iPAddressBandEnd"));
 			
 			this.leaseDuration = Long.parseLong(properties.getProperty("leaseDuration"));
-			this.addressAvailable = Integer.parseInt(properties.getProperty("addressAvailble"));
+			this.addressAvailable = Integer.parseInt(properties.getProperty("addressAvailable"));
 			
 		} catch (FileNotFoundException e) {
 			logger.systemMessage("Could not find file \"" + config + "\"");

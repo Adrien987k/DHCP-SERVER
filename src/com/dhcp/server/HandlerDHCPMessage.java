@@ -59,7 +59,7 @@ public class HandlerDHCPMessage extends Thread {
 		
 		response.setOp(DhcpMessage.BOOTREPLY);
 		response.setHtype((short) 1);
-		response.setLength((short) 6); 
+		response.setHlen((short) 6);
 		response.setHops((short) 0);
 		
 		response.setXid(message.getXid());
@@ -101,6 +101,8 @@ public class HandlerDHCPMessage extends Thread {
 		
 		response.setOptions(options);
 		
+		response.setLength(DhcpMessage.DHCP_MESSAGE_MIN_SIZE + response.getOptions().totalLength());
+		
 		if(sendResponse(response))
 			return true;
 		
@@ -114,7 +116,7 @@ public class HandlerDHCPMessage extends Thread {
 		
 		response.setOp(DhcpMessage.BOOTREPLY);
 		response.setHtype( (short) 1 );
-		response.setLength( (short) 6 );
+		response.setHlen((short) 6);
 		response.setHops( (short) 0 );
 		
 		response.setXid(message.getXid());
@@ -137,6 +139,7 @@ public class HandlerDHCPMessage extends Thread {
 		typeOption.setType(DhcpMessage.DHCPPACK);
 		options.addOption(typeOption);
 		
+		
 		try {
 			ServerIdentifierOption sio = new ServerIdentifierOption();
 			sio.addEncodable(new EncodedAddress(getServer().getConfig().getServerAddress()));
@@ -149,6 +152,8 @@ public class HandlerDHCPMessage extends Thread {
 		response.setFile("No film given");
 		
 		response.setOptions(options);
+		
+		response.setLength(DhcpMessage.DHCP_MESSAGE_MIN_SIZE + response.getOptions().totalLength());
 		
 		if(sendResponse(response))
 			return true;

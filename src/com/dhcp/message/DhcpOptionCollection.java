@@ -57,6 +57,9 @@ public class DhcpOptionCollection {
 	}
 	
 	public boolean addOption(DhcpOption option){
+		if(option == null){
+			return false;
+		}
 		if(!option.contentIsValid()) return false;
 		options.put(option.getCode(), option);
 		return true;

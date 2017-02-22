@@ -64,8 +64,10 @@ public class DhcpMessage {
 	}
 	
 	public byte[] getDhcpMessageBytes() throws InvalidDhcpMessageException {
-		if(length < DhcpMessage.DHCP_MESSAGE_MIN_SIZE) DhcpMessage.invalidDhcpMessage("length error");
-		if(length > DhcpMessage.DHCP_MESSAGE_MAX_SIZE) DhcpMessage.invalidDhcpMessage("length error");
+		if(length < DhcpMessage.DHCP_MESSAGE_MIN_SIZE) 
+			DhcpMessage.invalidDhcpMessage("length error: length = " + length + ". it should be > " + DhcpMessage.DHCP_MESSAGE_MIN_SIZE);
+		if(length > DhcpMessage.DHCP_MESSAGE_MAX_SIZE) 
+			DhcpMessage.invalidDhcpMessage("length error: length = " + length + ". it should be < " + DhcpMessage.DHCP_MESSAGE_MAX_SIZE);
 		
 		ByteBuffer buffer = ByteBuffer.allocate(length);
 		

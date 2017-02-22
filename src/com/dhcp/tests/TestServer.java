@@ -8,7 +8,7 @@ public class TestServer {
 	
 	public static void main(String[] args) {
 		try {
-			ServerCore serverCore = new ServerCore();
+			ServerCore serverCore = new ServerCore("data/config.properties");
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
