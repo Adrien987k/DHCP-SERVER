@@ -7,11 +7,11 @@ import java.net.InetAddress;
 import java.net.SocketException;
 import java.net.UnknownHostException;
 
-import com.dhcp.lease.LeaseManager;
 import com.dhcp.message.DhcpMessage;
 import com.dhcp.message.DhcpOptionCollection;
 import com.dhcp.message.InvalidDhcpMessageException;
 import com.dhcp.message.common.EncodedAddress;
+import com.dhcp.message.common.EncodedTime;
 import com.dhcp.message.options.IPLeaseTimeOption;
 import com.dhcp.message.options.MessageTypeOption;
 import com.dhcp.message.options.ServerIdentifierOption;
@@ -19,13 +19,23 @@ import com.dhcp.util.ServerLogger;
 
 public class HandlerDHCPMessage extends Thread {
 
-	ServerLogger logger;
+	@SuppressWarnings("unused")
+	private ServerLogger logger;
+	private ServerCore server;
+	
 	
 	//TODO: déterminer cette addresse
 	InetAddress ciAddressSelected;
 	
-	
+	@Deprecated
 	public HandlerDHCPMessage(DatagramPacket packet, ServerLogger logger) {
+		this.logger = logger;
+		DhcpMessage message = DhcpMessage.parseDhcpPacket(packet.getData());
+		handle(message);
+	}
+	
+	public HandlerDHCPMessage(DatagramPacket packet, ServerLogger logger,ServerCore server) {
+		this.server = server;
 		this.logger = logger;
 		DhcpMessage message = DhcpMessage.parseDhcpPacket(packet.getData());
 		handle(message);
@@ -43,7 +53,8 @@ public class HandlerDHCPMessage extends Thread {
 	}
 	
 	private boolean handleDISCOVER(DhcpMessage message) {
-		//TODO non terminé
+		//TODO normalement terminé
+		
 		DhcpMessage response = new DhcpMessage();
 		
 		response.setOp(DhcpMessage.BOOTREPLY);
@@ -58,7 +69,7 @@ public class HandlerDHCPMessage extends Thread {
 		try {
 			response.setCiaddr(InetAddress.getByAddress(new byte[4]));
 			response.setYiaddr(ciAddressSelected);
-			response.setSiaddr(InetAddress.getLocalHost());
+			response.setSiaddr(getServer().getConfig().getServerAddress());
 			response.setGiaddr(message.getGiaddr());
 			response.setChaddr(message.getChaddr());
 		} catch (UnknownHostException e) {
@@ -66,13 +77,14 @@ public class HandlerDHCPMessage extends Thread {
 		}
 		
 		DhcpOptionCollection options = new DhcpOptionCollection();
-		/* Si un lease time est demandé 
-		if() { 
-			
+		 
+		if(response.getOptions().getByCode((short) 51) != null) { 
+			options.addOption(response.getOptions().getByCode((short) 51));
 		} else {
-			sinon attribuer celui par défaut */
-			options.addOption(new IPLeaseTimeOption());
-		//}
+			IPLeaseTimeOption leaseTime = new IPLeaseTimeOption();
+			leaseTime.addEncodable(new EncodedTime(getServer().getConfig().getLeaseDuration()));
+			options.addOption(leaseTime);
+		}
 		
 		try {
 			options.addOption(new ServerIdentifierOption());
@@ -84,8 +96,8 @@ public class HandlerDHCPMessage extends Thread {
 		typeOption.setType(DhcpMessage.DHCPOFFER);
 		options.addOption(typeOption);
 		
-		response.setSname("");
-		response.setFile("");
+		response.setSname("No name given");
+		response.setFile("No film given");
 		
 		response.setOptions(options);
 		
@@ -96,7 +108,7 @@ public class HandlerDHCPMessage extends Thread {
 	}
 
 	private boolean handleREQUEST(DhcpMessage message) {
-		//TODO non terminé
+		//TODO normalement terminé
 		
 		DhcpMessage response = new DhcpMessage();
 		
@@ -109,15 +121,11 @@ public class HandlerDHCPMessage extends Thread {
 		response.setSecs(0);
 		response.setFlags(message.getFlags());
 		
-		try {
-			response.setCiaddr(message.getCiaddr());
-			response.setYiaddr(ciAddressSelected);
-			response.setSiaddr(InetAddress.getLocalHost());
-			response.setGiaddr(message.getGiaddr());
-			response.setChaddr(message.getChaddr());
-		} catch (UnknownHostException e) {
-			e.printStackTrace();
-		}
+		response.setCiaddr(message.getCiaddr());
+		response.setYiaddr(ciAddressSelected);
+		response.setSiaddr(getServer().getConfig().getServerAddress());
+		response.setGiaddr(message.getGiaddr());
+		response.setChaddr(message.getChaddr());
 		
 		
 		DhcpOptionCollection options = new DhcpOptionCollection();
@@ -131,14 +139,14 @@ public class HandlerDHCPMessage extends Thread {
 		
 		try {
 			ServerIdentifierOption sio = new ServerIdentifierOption();
-			sio.addEncodable(new EncodedAddress(InetAddress.getLocalHost()));
+			sio.addEncodable(new EncodedAddress(getServer().getConfig().getServerAddress()));
 			options.addOption(sio);
 		} catch (UnknownHostException e) {
 			e.printStackTrace();
 		}
 		
-		response.setSname("");
-		response.setFile("");
+		response.setSname("No name given");
+		response.setFile("No film given");
 		
 		response.setOptions(options);
 		
@@ -152,7 +160,7 @@ public class HandlerDHCPMessage extends Thread {
 		//TODO normalement terminé
 		
 		if(message.getCiaddr().getAddress()[0] != 0) {
-			LeaseManager.release(message.getCiaddr());
+			server.getLeaseManager().release(message.getCiaddr());
 			return true;
 		}
 		return false;
@@ -196,6 +204,10 @@ public class HandlerDHCPMessage extends Thread {
 		
 		
 		return true;
+	}
+	
+	public ServerCore getServer() {
+		return server;
 	}
 	
 }

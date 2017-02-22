@@ -3,27 +3,39 @@ package com.dhcp.server;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
-import java.net.InetAddress;
 import java.net.SocketException;
-import java.util.TreeMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import com.dhcp.lease.Lease;
+import com.dhcp.lease.LeaseManager;
 import com.dhcp.util.ServerLogger;
 
 
 public class ServerCore extends Thread {
 
-	private boolean stop = false;
+	private ServerConfig serverConfig;
 	private ServerLogger logger = null;
+	
 	private ExecutorService pool = null;
+	private LeaseManager leaseManager = null;
+	private boolean stop = false;
 	
-	
+	@Deprecated
 	public ServerCore() throws IOException {
 		logger = new ServerLogger();
 		logger.systemMessage("Server started");
 		pool = Executors.newFixedThreadPool(100);
+		start();
+	}
+	
+	public ServerCore(String config) throws IOException {
+		
+		logger = new ServerLogger();
+		logger.systemMessage("Initialization");
+		serverConfig = new ServerConfig(config,logger);
+		logger.systemMessage("Server " + serverConfig.getServerName() + " || " + serverConfig.getServerAddress() + " started");
+		pool = Executors.newFixedThreadPool(serverConfig.getAddressAvailable());
+		leaseManager = new LeaseManager(this,logger);
 		start();
 	}
 	
@@ -37,7 +49,7 @@ public class ServerCore extends Thread {
 				ds67.setBroadcast(true);
 				try {
 					ds67.receive(packet);
-					pool.execute(new Thread(new HandlerDHCPMessage(packet,logger)));
+					pool.execute(new Thread(new HandlerDHCPMessage(packet,logger,this)));
 				} catch (IOException e) {
 					
 				}
@@ -47,7 +59,13 @@ public class ServerCore extends Thread {
 		}
 	}
 
+	public ServerConfig getConfig() {
+		return serverConfig;
+	}
 	
+	public LeaseManager getLeaseManager() {
+		return leaseManager;
+	}
 	
 	
 }
