@@ -172,6 +172,23 @@ public class DhcpMessage {
 		return dhcpMessage;
 	}
 	
+	public boolean validateBeforeSending(){
+		length = DHCP_MESSAGE_MIN_SIZE + options.totalLength();
+		return isValid();
+	}
+	
+	public boolean isValid(){
+		return length >= DHCP_MESSAGE_MIN_SIZE && length <= DHCP_MESSAGE_MAX_SIZE
+		       && type > 0 && type < 9
+		       && ciaddr != null
+		       && giaddr != null
+		       && ciaddr != null
+		       && yiaddr != null
+		       && giaddr != null
+		       && chaddr != null
+		       && options.isValidOptionCollection();
+	}
+	
 	public boolean addOption(DhcpOption option){
 		if(options != null){
 			return options.addOption(option);

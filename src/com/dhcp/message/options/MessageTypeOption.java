@@ -4,6 +4,7 @@ import java.nio.ByteBuffer;
 
 import com.dhcp.message.DhcpMessage;
 import com.dhcp.message.InvalidDhcpMessageException;
+import com.dhcp.message.Option;
 import com.dhcp.message.common.DhcpOption;
 import com.dhcp.util.BufferUtils;
 
@@ -12,10 +13,15 @@ public class MessageTypeOption extends DhcpOption {
 	private short type = 0;
 	
 	public MessageTypeOption() {
-		super((short) 53);
+		super(Option.MESSAGE_TYPE);
 		
 		length = 1;
 		name = "DHCP Message Type";
+	}
+	
+	public MessageTypeOption(int type){
+		this();
+		this.type = (short) type;
 	}
 
 	@Override

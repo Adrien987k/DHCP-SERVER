@@ -3,12 +3,13 @@ package com.dhcp.message.options;
 import java.nio.ByteBuffer;
 
 import com.dhcp.message.InvalidDhcpMessageException;
+import com.dhcp.message.Option;
 import com.dhcp.message.common.DhcpOption;
 
 public class EmptyOption extends DhcpOption {
 
 	public EmptyOption() {
-		super((short) 0);
+		super(Option.EMPTY);
 		
 		name = "Pad Option";
 	}

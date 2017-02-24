@@ -10,7 +10,6 @@ public class TestServer {
 		try {
 			ServerCore serverCore = new ServerCore("data/config.properties");
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}

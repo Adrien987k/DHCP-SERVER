@@ -24,12 +24,12 @@ public class DhcpOptionCollection {
 			DhcpMessage.invalidDhcpMessage("try to send dhcp message with invalid collection of options");
 		
 		ByteBuffer buffer = ByteBuffer.allocate(
-				(options.containsKey((short) 255)) ? totalLength() : totalLength() + 1);
+				options.containsKey(Option.END) ? totalLength() : totalLength() + 1);
 		
 		for(DhcpOption option : options.values()) {
 			buffer.put(option.getBytes());
 		}
-		if(!options.containsKey((short) 255)){
+		if(!options.containsKey(Option.END)){
 			buffer.put(new EndOption().getBytes());
 		}
 		
@@ -48,7 +48,7 @@ public class DhcpOptionCollection {
 			option.parseDhcpOption(buffer);
 			options.addOption(option);
 			
-		} while(code != (short) 255 && buffer.hasRemaining());
+		} while(code != Option.END && buffer.hasRemaining());
 			
 		if(!options.isValidOptionCollection()) 
 			DhcpMessage.invalidDhcpMessage("dhcp message received with incoherent collection of options");
@@ -72,8 +72,8 @@ public class DhcpOptionCollection {
 	}
 	
 	public int getDhcpMessageType(){
-		if(options.containsKey((short) 53)){
-			MessageTypeOption msgTypeOpt = (MessageTypeOption) options.get((short) 53);
+		if(options.containsKey(Option.MESSAGE_TYPE)){
+			MessageTypeOption msgTypeOpt = (MessageTypeOption) options.get(Option.MESSAGE_TYPE);
 			return msgTypeOpt.getType();			
 		} else {
 			return 0;
@@ -86,14 +86,14 @@ public class DhcpOptionCollection {
 		return sb.toString();
 	}
 	
-	private boolean isValidOptionCollection(){
+	public boolean isValidOptionCollection(){
 		boolean containsDhcpMessageType = false;
 		boolean allOptionAppearsOneTime = true;
 		boolean allOptionAreValid = true;
 		
 		List<Short> optionsCodes = new ArrayList<>();
 		
-		if(options.containsKey(new Short((short) 53))) containsDhcpMessageType = true;
+		if(options.containsKey(Option.MESSAGE_TYPE)) containsDhcpMessageType = true;
 
 		for(DhcpOption option : options.values()){
 			if(!option.contentIsValid()) allOptionAreValid = false;

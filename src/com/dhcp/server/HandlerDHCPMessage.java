@@ -8,10 +8,9 @@ import java.net.SocketException;
 import java.net.UnknownHostException;
 
 import com.dhcp.message.DhcpMessage;
-import com.dhcp.message.DhcpOptionCollection;
 import com.dhcp.message.InvalidDhcpMessageException;
+import com.dhcp.message.Option;
 import com.dhcp.message.common.EncodedAddress;
-import com.dhcp.message.common.EncodedTime;
 import com.dhcp.message.options.IPLeaseTimeOption;
 import com.dhcp.message.options.MessageTypeOption;
 import com.dhcp.message.options.ServerIdentifierOption;
@@ -19,10 +18,8 @@ import com.dhcp.util.ServerLogger;
 
 public class HandlerDHCPMessage extends Thread {
 
-	@SuppressWarnings("unused")
 	private ServerLogger logger;
 	private ServerCore server;
-	
 	
 	//TODO: déterminer cette addresse
 	InetAddress ciAddressSelected;
@@ -42,7 +39,13 @@ public class HandlerDHCPMessage extends Thread {
 	}
 	
 	private void handle(DhcpMessage message) {
-		System.out.println(message);
+		
+		logger.messageReceived(message.toString());
+		
+		/* TODO A la fin du projet (pour ignorer les messages non valides) 
+		   
+		   if(!message.isValid()) return;
+		 */
 		
 		switch(message.getType()) {
 			case DhcpMessage.DHCPDISCOVER: handleDISCOVER(message); break;
@@ -53,7 +56,6 @@ public class HandlerDHCPMessage extends Thread {
 	}
 	
 	private boolean handleDISCOVER(DhcpMessage message) {
-		//TODO normalement terminé
 		
 		DhcpMessage response = new DhcpMessage();
 		
@@ -76,32 +78,26 @@ public class HandlerDHCPMessage extends Thread {
 			e.printStackTrace();
 		}
 		
-		DhcpOptionCollection options = new DhcpOptionCollection();
-		 
-		if(response.getOptions().getByCode((short) 51) != null) { 
-			options.addOption(response.getOptions().getByCode((short) 51));
+		if(response.getOptions().getByCode(Option.IP_LEASE_TIME) != null) { 
+			response.addOption(response.getOptions().getByCode(Option.IP_LEASE_TIME));
 		} else {
-			IPLeaseTimeOption leaseTime = new IPLeaseTimeOption();
-			leaseTime.addEncodable(new EncodedTime(getServer().getConfig().getLeaseDuration()));
-			options.addOption(leaseTime);
+			response.addOption(new IPLeaseTimeOption(getServer().getConfig().getLeaseDuration()));
 		}
 		
 		try {
-			options.addOption(new ServerIdentifierOption());
+			response.addOption(new ServerIdentifierOption());
 		} catch (UnknownHostException e) {
 			e.printStackTrace();
 		}
 		
-		MessageTypeOption typeOption = new MessageTypeOption();
-		typeOption.setType(DhcpMessage.DHCPOFFER);
-		options.addOption(typeOption);
+		response.addOption(new MessageTypeOption(DhcpMessage.DHCPOFFER));
 		
 		response.setSname("No name given");
 		response.setFile("No film given");
 		
-		response.setOptions(options);
-		
-		response.setLength(DhcpMessage.DHCP_MESSAGE_MIN_SIZE + response.getOptions().totalLength());
+		if(!response.validateBeforeSending()){
+			//TODO HANDLE Error
+		}
 		
 		if(sendResponse(response))
 			return true;
@@ -110,7 +106,6 @@ public class HandlerDHCPMessage extends Thread {
 	}
 
 	private boolean handleREQUEST(DhcpMessage message) {
-		//TODO normalement terminé
 		
 		DhcpMessage response = new DhcpMessage();
 		
@@ -129,21 +124,14 @@ public class HandlerDHCPMessage extends Thread {
 		response.setGiaddr(message.getGiaddr());
 		response.setChaddr(message.getChaddr());
 		
+		response.addOption(message.getOptions().getByCode(Option.IP_LEASE_TIME));
 		
-		DhcpOptionCollection options = new DhcpOptionCollection();
-		
-		options.addOption(message.getOptions().getByCode((short) 51));
-		
-		
-		MessageTypeOption typeOption = new MessageTypeOption();
-		typeOption.setType(DhcpMessage.DHCPPACK);
-		options.addOption(typeOption);
-		
+		response.addOption(new MessageTypeOption(DhcpMessage.DHCPPACK));
 		
 		try {
 			ServerIdentifierOption sio = new ServerIdentifierOption();
 			sio.addEncodable(new EncodedAddress(getServer().getConfig().getServerAddress()));
-			options.addOption(sio);
+			response.addOption(sio);
 		} catch (UnknownHostException e) {
 			e.printStackTrace();
 		}
@@ -151,9 +139,9 @@ public class HandlerDHCPMessage extends Thread {
 		response.setSname("No name given");
 		response.setFile("No film given");
 		
-		response.setOptions(options);
-		
-		response.setLength(DhcpMessage.DHCP_MESSAGE_MIN_SIZE + response.getOptions().totalLength());
+		if(!response.validateBeforeSending()){
+			//TODO HANDLE Error
+		}
 		
 		if(sendResponse(response))
 			return true;
@@ -162,7 +150,6 @@ public class HandlerDHCPMessage extends Thread {
 	}
 	
 	private boolean handleRELEASE(DhcpMessage message) {
-		//TODO normalement terminé
 		
 		if(message.getCiaddr().getAddress()[0] != 0) {
 			server.getLeaseManager().release(message.getCiaddr());
