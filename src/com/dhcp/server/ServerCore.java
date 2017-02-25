@@ -29,7 +29,6 @@ public class ServerCore extends Thread {
 	}
 	
 	public ServerCore(String config) throws IOException {
-		
 		logger = new ServerLogger();
 		logger.systemMessage("Initialization");
 		serverConfig = new ServerConfig(config,logger);

@@ -17,6 +17,9 @@ import com.dhcp.message.options.MessageTypeOption;
 import com.dhcp.message.options.ServerIdentifierOption;
 import com.dhcp.util.ServerLogger;
 
+
+//TODO: distribuer le travail pour chaque requête dans une classe à part
+//			méthodes un peu longues et a fortio ri la classe
 public class HandlerDHCPMessage extends Thread {
 
 	@SuppressWarnings("unused")
@@ -108,7 +111,23 @@ public class HandlerDHCPMessage extends Thread {
 	}
 
 	private boolean handleREQUEST(DhcpMessage message) {
-		//TODO normalement terminé
+		//TODO non terminé
+		
+		boolean leaseAttributed = false;
+		
+		//quel état ? -> ciaddr
+		
+		//quel addresse ? -> ciaddr / requested (option)
+		
+		//quel ack ? -> retour du leaseManager
+
+		if(message.getCiaddr().getAddress()[0] == 0) {
+			if(getServer().getLeaseManager().tryOldIPAddressElseRand(message.getOptions().getByCode((short) 50)), message.getChaddr()) != null)
+				leaseAttributed = true;
+		} else {
+			
+		}
+		
 		
 		DhcpMessage response = new DhcpMessage();
 		

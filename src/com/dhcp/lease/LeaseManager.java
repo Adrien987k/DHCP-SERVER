@@ -21,6 +21,8 @@ public class LeaseManager {
 		this.server = server;
 		this.logger = logger;
 	}
+	
+	
 	public synchronized InetAddress getRandIPAddress(HardwareAddress hardwareAddress) {
 			//TODO non terminé
 			
