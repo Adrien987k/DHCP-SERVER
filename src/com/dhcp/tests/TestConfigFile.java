@@ -6,6 +6,8 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.Properties;
 
+import com.dhcp.util.PropertiesWriter;
+
 public class TestConfigFile {
 	public static void main(String[] args) {
 		File cfg = new File ("data/config.properties");
@@ -15,8 +17,9 @@ public class TestConfigFile {
 			Properties properties = new Properties();
 			properties.load(reader);
 			
-			System.out.println("Server name: " + properties.getProperty("serverName"));
-			System.out.println("IP address: " + properties.getProperty("ipAddress"));
+			PropertiesWriter pw = new PropertiesWriter(null,cfg);
+			pw.write(properties);
+			
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		} catch (IOException e ) {
