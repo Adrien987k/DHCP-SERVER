@@ -47,7 +47,8 @@ public class PropertiesWriter {
 			for(int i = 1; i <= Integer.parseInt(properties.getProperty("staticLeaseAllocated")); i++) {
 				cfg.write("#static lease "+i+"\n");
 				cfg.write("lease"+i+".ipAddress="+properties.getProperty("lease"+i+".ipAddress")+"\n");
-				cfg.write("lease"+i+".hardwareAddress="+properties.getProperty("lease"+i+".hardwareAddress")+"\n"+"\n");
+				cfg.write("lease"+i+".hardwareAddress="+properties.getProperty("lease"+i+".hardwareAddress")+"\n");
+				cfg.write("lease"+i+".duration="+properties.getProperty("lease"+i+".duration")+"\n"+"\n");
 			}
 			
 			cfg.close();

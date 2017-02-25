@@ -20,4 +20,13 @@ public class HardwareAddress {
 		return new HardwareAddress(address);
 	}
 	
+	public static HardwareAddress parseHardwareAddress(String buffer){
+		
+		//TODO
+		byte[] address = new byte[16];
+		
+		return new HardwareAddress(address);
+	}
+	
+	
 }
