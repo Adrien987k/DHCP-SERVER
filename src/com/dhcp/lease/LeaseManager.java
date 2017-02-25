@@ -10,6 +10,9 @@ import com.dhcp.util.ServerLogger;
 public class LeaseManager {
 
 	private final TreeMap<InetAddress, Lease> leases = new TreeMap<>();
+	//TODO Sauvegarder les nouveaux baux dans le fichier de config
+	//TODO déterminer si c'est static ou dynamique
+	
 	
 	@SuppressWarnings("unused")
 	private ServerLogger logger;
@@ -21,7 +24,7 @@ public class LeaseManager {
 		this.server = server;
 		this.logger = logger;
 		
-		//TODO ajouter les baux statiques à la liste depuis la config
+		leases.putAll(getServer().getConfig().getStaticLeases());
 	}
 	
 	

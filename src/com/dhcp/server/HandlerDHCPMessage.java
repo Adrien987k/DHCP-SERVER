@@ -8,22 +8,21 @@ import java.net.SocketException;
 import java.net.UnknownHostException;
 
 import com.dhcp.message.DhcpMessage;
-import com.dhcp.message.DhcpOptionCollection;
 import com.dhcp.message.InvalidDhcpMessageException;
 import com.dhcp.message.Option;
 import com.dhcp.message.common.EncodedAddress;
-import com.dhcp.message.common.EncodedTime;
 import com.dhcp.message.options.IPLeaseTimeOption;
+import com.dhcp.message.options.IpRequestedOption;
 import com.dhcp.message.options.MessageTypeOption;
 import com.dhcp.message.options.ServerIdentifierOption;
 import com.dhcp.util.ServerLogger;
 
 
 //TODO: distribuer le travail pour chaque requête dans une classe à part
-//			méthodes un peu longues et a fortio ri la classe
+//			méthodes un peu longues et a fortio ri la classe l'est aussi
+// ou alors tout garder et faire un handler par client (donc qui gère la transaction complète
 public class HandlerDHCPMessage extends Thread {
 
-	@SuppressWarnings("unused")
 	private ServerLogger logger;
 	private ServerCore server;
 	
@@ -45,7 +44,7 @@ public class HandlerDHCPMessage extends Thread {
 		handle(message);
 	}
 	
-	private void handle(DhcpMessage message) {
+	private synchronized void handle(DhcpMessage message) {
 		System.out.println(message);
 		
 		logger.messageReceived(message.toString());
@@ -63,7 +62,7 @@ public class HandlerDHCPMessage extends Thread {
 		}
 	}
 	
-	private boolean handleDISCOVER(DhcpMessage message) {
+	private synchronized boolean handleDISCOVER(DhcpMessage message) {
 		//TODO normalement terminé
 		
 		DhcpMessage response = new DhcpMessage();
@@ -77,15 +76,11 @@ public class HandlerDHCPMessage extends Thread {
 		response.setSecs((short) 0);
 		response.setFlags(message.getFlags());
 		
-		try {
-			response.setCiaddr(InetAddress.getByAddress(new byte[4]));
-			response.setYiaddr(ciAddressSelected);
-			response.setSiaddr(getServer().getConfig().getServerAddress());
-			response.setGiaddr(message.getGiaddr());
-			response.setChaddr(message.getChaddr());
-		} catch (UnknownHostException e) {
-			e.printStackTrace();
-		}
+		response.setYiaddr(ciAddressSelected);
+		response.setSiaddr(getServer().getConfig().getServerAddress());
+		response.setGiaddr(message.getGiaddr());
+		response.setChaddr(message.getChaddr());
+		
 		
 		if(response.getOptions().getByCode(Option.IP_LEASE_TIME) != null) { 
 			response.addOption(response.getOptions().getByCode(Option.IP_LEASE_TIME));
@@ -114,24 +109,16 @@ public class HandlerDHCPMessage extends Thread {
 		return false;
 	}
 
-	private boolean handleREQUEST(DhcpMessage message) {
+	private synchronized boolean handleREQUEST(DhcpMessage message) {
 		//TODO non terminé
 		
 		boolean leaseAttributed = false;
-		
-		//quel état ? -> ciaddr
-		
-		//quel addresse ? -> ciaddr / requested (option)
-		
-		//quel ack ? -> retour du leaseManager
 
 		if(message.getCiaddr().getAddress()[0] == 0) {
-			//if(getServer().getLeaseManager().tryOldIPAddressElseRand(message.getOptions().getByCode((short) 50)), message.getChaddr()) != null)
+			InetAddress ipAddressRequested = ( (IpRequestedOption) message.getOptions().getByCode(Option.IP_REQUESTED)).getElements().get(0) ;
+			if(getServer().getLeaseManager().tryAddressElseRand(ipAddressRequested, message.getChaddr()) != null);
 				leaseAttributed = true;
-		} else {
-			
 		}
-		
 		
 		DhcpMessage response = new DhcpMessage();
 		
@@ -144,15 +131,20 @@ public class HandlerDHCPMessage extends Thread {
 		response.setSecs(0);
 		response.setFlags(message.getFlags());
 		
-		response.setCiaddr(message.getCiaddr());
-		response.setYiaddr(ciAddressSelected);
-		response.setSiaddr(getServer().getConfig().getServerAddress());
+		
 		response.setGiaddr(message.getGiaddr());
 		response.setChaddr(message.getChaddr());
 		
-		response.addOption(message.getOptions().getByCode(Option.IP_LEASE_TIME));
-		
-		response.addOption(new MessageTypeOption(DhcpMessage.DHCPPACK));
+		if(leaseAttributed) {
+			response.setCiaddr(message.getCiaddr());
+			response.setYiaddr(ciAddressSelected);
+			response.setSiaddr(getServer().getConfig().getServerAddress());
+			
+			response.addOption(message.getOptions().getByCode(Option.IP_LEASE_TIME));
+			response.addOption(new MessageTypeOption(DhcpMessage.DHCPPACK));
+		} else {
+			response.addOption(new MessageTypeOption(DhcpMessage.DHCPNAK));
+		}
 		
 		try {
 			ServerIdentifierOption sio = new ServerIdentifierOption();
@@ -163,7 +155,7 @@ public class HandlerDHCPMessage extends Thread {
 		}
 		
 		response.setSname("No name given");
-		response.setFile("No film given");
+		response.setFile("No file given");
 		
 		if(!response.validateBeforeSending()){
 			//TODO HANDLE Error
@@ -175,8 +167,7 @@ public class HandlerDHCPMessage extends Thread {
 		return false;
 	}
 	
-	private boolean handleRELEASE(DhcpMessage message) {
-		//TODO normalement terminé
+	private synchronized boolean handleRELEASE(DhcpMessage message) {
 		
 		if(message.getCiaddr().getAddress()[0] != 0) {
 			server.getLeaseManager().release(message.getCiaddr());
@@ -185,7 +176,7 @@ public class HandlerDHCPMessage extends Thread {
 		return false;
 	}
 	
-	private boolean sendResponse(DhcpMessage message) {
+	private synchronized boolean sendResponse(DhcpMessage message) {
 		
 		try {
 			
