@@ -13,7 +13,7 @@ public class Lease {
 	private long duration;
 	private boolean isAvailable = true;
 	
-	public Lease(InetAddress ipAddress, HardwareAddress hardwareAddress, int duration) {
+	public Lease(InetAddress ipAddress, HardwareAddress hardwareAddress, long duration) {
 		this.ipAddress = ipAddress;
 		this.currentHardwareAddress = hardwareAddress;
 		this.knownHardwareAddresses.add(hardwareAddress);
