@@ -64,8 +64,10 @@ public class DhcpMessage {
 	}
 	
 	public byte[] getDhcpMessageBytes() throws InvalidDhcpMessageException {
-		if(length < DhcpMessage.DHCP_MESSAGE_MIN_SIZE) DhcpMessage.invalidDhcpMessage("length error");
-		if(length > DhcpMessage.DHCP_MESSAGE_MAX_SIZE) DhcpMessage.invalidDhcpMessage("length error");
+		if(length < DhcpMessage.DHCP_MESSAGE_MIN_SIZE) 
+			DhcpMessage.invalidDhcpMessage("length error: length = " + length + ". it should be > " + DhcpMessage.DHCP_MESSAGE_MIN_SIZE);
+		if(length > DhcpMessage.DHCP_MESSAGE_MAX_SIZE) 
+			DhcpMessage.invalidDhcpMessage("length error: length = " + length + ". it should be < " + DhcpMessage.DHCP_MESSAGE_MAX_SIZE);
 		
 		ByteBuffer buffer = ByteBuffer.allocate(length);
 		
@@ -168,6 +170,23 @@ public class DhcpMessage {
 		dhcpMessage.setType(dhcpMessage.options.getDhcpMessageType());
 		
 		return dhcpMessage;
+	}
+	
+	public boolean validateBeforeSending(){
+		length = DHCP_MESSAGE_MIN_SIZE + options.totalLength();
+		return isValid();
+	}
+	
+	public boolean isValid(){
+		return length >= DHCP_MESSAGE_MIN_SIZE && length <= DHCP_MESSAGE_MAX_SIZE
+		       && type > 0 && type < 9
+		       && ciaddr != null
+		       && giaddr != null
+		       && ciaddr != null
+		       && yiaddr != null
+		       && giaddr != null
+		       && chaddr != null
+		       && options.isValidOptionCollection();
 	}
 	
 	public boolean addOption(DhcpOption option){

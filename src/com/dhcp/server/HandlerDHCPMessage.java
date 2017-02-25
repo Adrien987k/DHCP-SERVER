@@ -10,6 +10,7 @@ import java.net.UnknownHostException;
 import com.dhcp.message.DhcpMessage;
 import com.dhcp.message.DhcpOptionCollection;
 import com.dhcp.message.InvalidDhcpMessageException;
+import com.dhcp.message.Option;
 import com.dhcp.message.common.EncodedAddress;
 import com.dhcp.message.common.EncodedTime;
 import com.dhcp.message.options.IPLeaseTimeOption;
@@ -47,6 +48,13 @@ public class HandlerDHCPMessage extends Thread {
 	private void handle(DhcpMessage message) {
 		System.out.println(message);
 		
+		logger.messageReceived(message.toString());
+		
+		/* TODO A la fin du projet (pour ignorer les messages non valides) 
+		   
+		   if(!message.isValid()) return;
+		 */
+		
 		switch(message.getType()) {
 			case DhcpMessage.DHCPDISCOVER: handleDISCOVER(message); break;
 			case DhcpMessage.DHCPREQUEST: handleREQUEST(message); break;
@@ -62,7 +70,7 @@ public class HandlerDHCPMessage extends Thread {
 		
 		response.setOp(DhcpMessage.BOOTREPLY);
 		response.setHtype((short) 1);
-		response.setLength((short) 6); 
+		response.setHlen((short) 6);
 		response.setHops((short) 0);
 		
 		response.setXid(message.getXid());
@@ -79,30 +87,26 @@ public class HandlerDHCPMessage extends Thread {
 			e.printStackTrace();
 		}
 		
-		DhcpOptionCollection options = new DhcpOptionCollection();
-		 
-		if(response.getOptions().getByCode((short) 51) != null) { 
-			options.addOption(response.getOptions().getByCode((short) 51));
+		if(response.getOptions().getByCode(Option.IP_LEASE_TIME) != null) { 
+			response.addOption(response.getOptions().getByCode(Option.IP_LEASE_TIME));
 		} else {
-			IPLeaseTimeOption leaseTime = new IPLeaseTimeOption();
-			leaseTime.addEncodable(new EncodedTime(getServer().getConfig().getLeaseDuration()));
-			options.addOption(leaseTime);
+			response.addOption(new IPLeaseTimeOption(getServer().getConfig().getLeaseDuration()));
 		}
 		
 		try {
-			options.addOption(new ServerIdentifierOption());
+			response.addOption(new ServerIdentifierOption());
 		} catch (UnknownHostException e) {
 			e.printStackTrace();
 		}
 		
-		MessageTypeOption typeOption = new MessageTypeOption();
-		typeOption.setType(DhcpMessage.DHCPOFFER);
-		options.addOption(typeOption);
+		response.addOption(new MessageTypeOption(DhcpMessage.DHCPOFFER));
 		
 		response.setSname("No name given");
 		response.setFile("No film given");
 		
-		response.setOptions(options);
+		if(!response.validateBeforeSending()){
+			//TODO HANDLE Error
+		}
 		
 		if(sendResponse(response))
 			return true;
@@ -122,7 +126,7 @@ public class HandlerDHCPMessage extends Thread {
 		//quel ack ? -> retour du leaseManager
 
 		if(message.getCiaddr().getAddress()[0] == 0) {
-			if(getServer().getLeaseManager().tryOldIPAddressElseRand(message.getOptions().getByCode((short) 50)), message.getChaddr()) != null)
+			//if(getServer().getLeaseManager().tryOldIPAddressElseRand(message.getOptions().getByCode((short) 50)), message.getChaddr()) != null)
 				leaseAttributed = true;
 		} else {
 			
@@ -146,20 +150,14 @@ public class HandlerDHCPMessage extends Thread {
 		response.setGiaddr(message.getGiaddr());
 		response.setChaddr(message.getChaddr());
 		
+		response.addOption(message.getOptions().getByCode(Option.IP_LEASE_TIME));
 		
-		DhcpOptionCollection options = new DhcpOptionCollection();
-		
-		options.addOption(message.getOptions().getByCode((short) 51));
-		
-		
-		MessageTypeOption typeOption = new MessageTypeOption();
-		typeOption.setType(DhcpMessage.DHCPPACK);
-		options.addOption(typeOption);
+		response.addOption(new MessageTypeOption(DhcpMessage.DHCPPACK));
 		
 		try {
 			ServerIdentifierOption sio = new ServerIdentifierOption();
 			sio.addEncodable(new EncodedAddress(getServer().getConfig().getServerAddress()));
-			options.addOption(sio);
+			response.addOption(sio);
 		} catch (UnknownHostException e) {
 			e.printStackTrace();
 		}
@@ -167,7 +165,9 @@ public class HandlerDHCPMessage extends Thread {
 		response.setSname("No name given");
 		response.setFile("No film given");
 		
-		response.setOptions(options);
+		if(!response.validateBeforeSending()){
+			//TODO HANDLE Error
+		}
 		
 		if(sendResponse(response))
 			return true;

@@ -6,6 +6,7 @@ import java.net.UnknownHostException;
 import com.dhcp.message.DhcpMessage;
 import com.dhcp.message.DhcpOptionFactory;
 import com.dhcp.message.InvalidDhcpMessageException;
+import com.dhcp.message.Option;
 import com.dhcp.message.common.EncodedAddress;
 import com.dhcp.message.options.IpRequestedOption;
 import com.dhcp.message.options.MessageTypeOption;
@@ -47,7 +48,7 @@ public class TestDhcpMessage {
 		
 		MessageTypeOption option = null;
 		
-		option = (MessageTypeOption) DhcpOptionFactory.buildDhcpOption((short) 53);
+		option = (MessageTypeOption) DhcpOptionFactory.buildDhcpOption(Option.MESSAGE_TYPE);
 		
 		option.setType(DhcpMessage.DHCPREQUEST);
 		
@@ -57,7 +58,7 @@ public class TestDhcpMessage {
 		
 		IpRequestedOption ipOption = null;
 	
-		ipOption = (IpRequestedOption) DhcpOptionFactory.buildDhcpOption((short) 50);
+		ipOption = (IpRequestedOption) DhcpOptionFactory.buildDhcpOption(Option.IP_REQUESTED);
 
 		try {
 			ipOption.addEncodable(new EncodedAddress(InetAddress.getByName("192.68.102.13")));

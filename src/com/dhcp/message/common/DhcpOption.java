@@ -17,9 +17,8 @@ public abstract class DhcpOption {
 		this.code = code;
 	}
 	
-	public abstract byte[] getContent() throws InvalidDhcpMessageException;
+	public abstract byte[] getBytes() throws InvalidDhcpMessageException;
 	public abstract void parseDhcpOption(ByteBuffer buffer) throws InvalidDhcpMessageException;
-	
 	
 	public boolean contentIsValid(){
 		boolean isValid = true;
@@ -37,7 +36,7 @@ public abstract class DhcpOption {
 		return sb.toString();
 	}
 	
-	public short getLength(){
+	public short getContentLength(){
 		return length;
 	}
 	

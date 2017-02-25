@@ -15,7 +15,7 @@ public class UnknowOption extends DhcpOption {
 	}
 
 	@Override
-	public byte[] getContent() {
+	public byte[] getBytes() {
 		byte[] result = new byte[]{ (byte) code , (byte) length};
 		return result;
 	}
