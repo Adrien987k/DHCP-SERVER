@@ -48,6 +48,10 @@ public class Lease {
 			knownHardwareAddresses.add(hardwareAddress);
 	}
 	
+	public ArrayList<HardwareAddress> getKnownHardwareAddress() {
+		return knownHardwareAddresses;
+	}
+	
 	public boolean isAvailable() {
 		return isAvailable;
 	}

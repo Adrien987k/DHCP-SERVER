@@ -28,11 +28,9 @@ public class TestDhcpPacket {
 						ds1234.receive(new DatagramPacket((handler = new byte[messageTest.length]), messageTest.length));
 						System.out.println("Received: " + handler.toString());
 					} catch (IOException e) {
-						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
 				} catch (SocketException e1) {
-					// TODO Auto-generated catch block
 					e1.printStackTrace();
 				}
 			}
@@ -52,7 +50,6 @@ public class TestDhcpPacket {
 			System.out.println("message created " + message.toString());
 			ds.send(message);
 		} catch (SocketException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (UnknownHostException e) {
 			// TODO: handle exception

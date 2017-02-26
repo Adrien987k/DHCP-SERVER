@@ -2,11 +2,12 @@ package com.dhcp.lease;
 
 import java.net.InetAddress;
 import java.util.HashMap;
-import java.util.TreeMap;
 
+import com.dhcp.server.HandlerDHCPMessage;
 import com.dhcp.server.ServerCore;
 import com.dhcp.util.HardwareAddress;
 import com.dhcp.util.ServerLogger;
+import com.dhcp.util.TransactionID;
 
 public class LeaseManager {
 
@@ -27,6 +28,9 @@ public class LeaseManager {
 		
 		leases.putAll(getServer().getConfig().getStaticLeases());
 	}
+	
+	private ServerCore getServer() { return server; }
+	private HashMap<InetAddress,Lease> getLeases() { return leases; }
 	
 	
 	public synchronized InetAddress getRandIPAddress(HardwareAddress hardwareAddress) {
@@ -63,15 +67,28 @@ public class LeaseManager {
 		getLeases().get(address).release(false);
 	}
 	
-	private ServerCore getServer() { return server; }
-	private HashMap<InetAddress,Lease> getLeases() { return leases; }
-	
 	private synchronized InetAddress findAvailableIpAddress() {
 		InetAddress ipAddress = getServer().getConfig().getIpAddressBandStart();
 				
 		for(int i = 0; i < getServer().getConfig().getAddressAvailable() ; i++) {
 			ipAddress.getAddress()[3] += i;
-			if(!getLeases().containsKey(ipAddress)) {
+			if(!getLeases().containsKey(ipAddress)
+					&& HandlerDHCPMessage.addressPreSelected.containsValue(ipAddress)) {
+				return ipAddress;
+			}
+		}
+		
+		return null;
+	}
+	
+	public synchronized InetAddress findAvailableIpAddress(TransactionID xid) {
+		InetAddress ipAddress = getServer().getConfig().getIpAddressBandStart();
+				
+		for(int i = 0; i < getServer().getConfig().getAddressAvailable() ; i++) {
+			ipAddress.getAddress()[3] += i;
+			if(!getLeases().containsKey(ipAddress)
+					&& HandlerDHCPMessage.addressPreSelected.containsValue(ipAddress)) {
+				HandlerDHCPMessage.addressPreSelected.put(xid, ipAddress);
 				return ipAddress;
 			}
 		}
