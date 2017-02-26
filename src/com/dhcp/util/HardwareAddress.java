@@ -22,8 +22,22 @@ public class HardwareAddress {
 	
 	public static HardwareAddress parseHardwareAddress(String buffer){
 		
-		//TODO
 		byte[] address = new byte[16];
+		
+		ByteBuffer bb = ByteBuffer.wrap(buffer.getBytes());
+		
+		for(int i = address.length -1; i > 0 ; i -= 4) {
+			address[i  ] = bb.get();
+			address[i-1] = bb.get();
+			
+			address[i-2] = bb.get();
+			address[i-3] = bb.get();
+			
+			// / ou :
+			bb.getChar();
+		}
+		
+		
 		
 		return new HardwareAddress(address);
 	}
