@@ -33,8 +33,7 @@ public class HardwareAddress {
 			address[i-2] = bb.get();
 			address[i-3] = bb.get();
 			
-			// / ou :
-			bb.getChar();
+			// / ou :bb.getChar();
 		}
 		
 		return new HardwareAddress(address);
