@@ -6,6 +6,7 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketException;
 import java.net.UnknownHostException;
+import java.util.TreeMap;
 
 import com.dhcp.message.DhcpMessage;
 import com.dhcp.message.InvalidDhcpMessageException;
@@ -16,16 +17,19 @@ import com.dhcp.message.options.IpRequestedOption;
 import com.dhcp.message.options.MessageTypeOption;
 import com.dhcp.message.options.ServerIdentifierOption;
 import com.dhcp.util.ServerLogger;
+import com.dhcp.util.TransactionID;
 
 
 //TODO: distribuer le travail pour chaque requête dans une classe à part
 //			méthodes un peu longues et a fortio ri la classe l'est aussi
-// ou alors tout garder et faire un handler par client (donc qui gère la transaction complète
+// ou alors tout garder et faire un handler par client (donc qui gère la transaction complète)
+// ou alors une liste avec les traitements en cours contenant l'xid et l'addresse
 public class HandlerDHCPMessage extends Thread {
 
 	private ServerLogger logger;
 	private ServerCore server;
 	
+	public static final TreeMap<TransactionID,InetAddress> addressPreSelected = new TreeMap<>();
 	
 	//TODO: déterminer cette addresse
 	InetAddress ciAddressSelected;
@@ -76,7 +80,10 @@ public class HandlerDHCPMessage extends Thread {
 		response.setSecs((short) 0);
 		response.setFlags(message.getFlags());
 		
-		response.setYiaddr(ciAddressSelected);
+		InetAddress addressPreSelected; 
+		if( (addressPreSelected = getServer().getLeaseManager().findAvailableIpAddress(new TransactionID(message.getXid()))) != null )
+			response.setYiaddr(addressPreSelected);
+		
 		response.setSiaddr(getServer().getConfig().getServerAddress());
 		response.setGiaddr(message.getGiaddr());
 		response.setChaddr(message.getChaddr());
@@ -103,8 +110,19 @@ public class HandlerDHCPMessage extends Thread {
 			//TODO HANDLE Error
 		}
 		
-		if(sendResponse(response))
+		if(sendResponse(response)) {
+			
+			try {
+				Thread.sleep(15000);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} finally {
+				HandlerDHCPMessage.addressPreSelected.remove(new TransactionID(message.getXid()));
+			}
 			return true;
+		}
+			
 		
 		return false;
 	}
@@ -112,11 +130,12 @@ public class HandlerDHCPMessage extends Thread {
 	private synchronized boolean handleREQUEST(DhcpMessage message) {
 		//TODO non terminé
 		
+		InetAddress ipAddressAllocated = null;
 		boolean leaseAttributed = false;
 
 		if(message.getCiaddr().getAddress()[0] == 0) {
 			InetAddress ipAddressRequested = ( (IpRequestedOption) message.getOptions().getByCode(Option.IP_REQUESTED)).getElements().get(0) ;
-			if(getServer().getLeaseManager().tryAddressElseRand(ipAddressRequested, message.getChaddr()) != null);
+			if( ( ipAddressRequested = getServer().getLeaseManager().tryAddressElseRand(ipAddressRequested, message.getChaddr())) != null);
 				leaseAttributed = true;
 		}
 		
@@ -137,8 +156,7 @@ public class HandlerDHCPMessage extends Thread {
 		
 		if(leaseAttributed) {
 			response.setCiaddr(message.getCiaddr());
-			response.setYiaddr(ciAddressSelected);
-			response.setSiaddr(getServer().getConfig().getServerAddress());
+			response.setYiaddr(ipAddressAllocated);response.setSiaddr(getServer().getConfig().getServerAddress());
 			
 			response.addOption(message.getOptions().getByCode(Option.IP_LEASE_TIME));
 			response.addOption(new MessageTypeOption(DhcpMessage.DHCPPACK));
