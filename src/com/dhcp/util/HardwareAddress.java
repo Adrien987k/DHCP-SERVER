@@ -37,9 +37,20 @@ public class HardwareAddress {
 			bb.getChar();
 		}
 		
-		
-		
 		return new HardwareAddress(address);
+	}
+	
+	@Override
+	public String toString() {
+		StringBuilder sb = new StringBuilder();
+		for(int i = address.length-1; i > 0; i -= 4) {
+			sb.append(address[i  ]);
+			sb.append(address[i-1]);
+			sb.append(address[i-2]);
+			sb.append(address[i-3]);
+			sb.append("-");
+		}
+		return sb.toString();
 	}
 	
 	

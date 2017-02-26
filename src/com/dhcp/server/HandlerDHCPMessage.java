@@ -31,9 +31,6 @@ public class HandlerDHCPMessage extends Thread {
 	
 	public static final TreeMap<TransactionID,InetAddress> addressPreSelected = new TreeMap<>();
 	
-	//TODO: déterminer cette addresse
-	InetAddress ciAddressSelected;
-	
 	@Deprecated
 	public HandlerDHCPMessage(DatagramPacket packet, ServerLogger logger) {
 		this.logger = logger;
@@ -67,7 +64,6 @@ public class HandlerDHCPMessage extends Thread {
 	}
 	
 	private synchronized boolean handleDISCOVER(DhcpMessage message) {
-		//TODO normalement terminé
 		
 		DhcpMessage response = new DhcpMessage();
 		
@@ -115,7 +111,6 @@ public class HandlerDHCPMessage extends Thread {
 			try {
 				Thread.sleep(15000);
 			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			} finally {
 				HandlerDHCPMessage.addressPreSelected.remove(new TransactionID(message.getXid()));
@@ -128,14 +123,15 @@ public class HandlerDHCPMessage extends Thread {
 	}
 
 	private synchronized boolean handleREQUEST(DhcpMessage message) {
-		//TODO non terminé
 		
 		InetAddress ipAddressAllocated = null;
 		boolean leaseAttributed = false;
 
 		if(message.getCiaddr().getAddress()[0] == 0) {
 			InetAddress ipAddressRequested = ( (IpRequestedOption) message.getOptions().getByCode(Option.IP_REQUESTED)).getElements().get(0) ;
-			if( ( ipAddressRequested = getServer().getLeaseManager().tryAddressElseRand(ipAddressRequested, message.getChaddr())) != null);
+			if( ( ipAddressRequested = getServer().getLeaseManager().tryAddressElseRand(
+																						ipAddressRequested
+																						, message.getChaddr())) != null);
 				leaseAttributed = true;
 		}
 		

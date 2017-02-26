@@ -2,18 +2,22 @@ package com.dhcp.util;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Properties;
 
-//TODO non terminé
+import com.dhcp.lease.Lease;
+
 public class PropertiesWriter {
 
 	FileWriter cfg;
+	File file;
 	ServerLogger logger;
 	
 	public PropertiesWriter(ServerLogger logger, File file) {
 		this.logger = logger;
+		this.file = file;
 		try {
 			this.cfg = new FileWriter(file);
 		} catch (FileNotFoundException e) {
@@ -23,7 +27,7 @@ public class PropertiesWriter {
 		}
 	}
 	
-	public void write(Properties properties) {
+	public synchronized void write(Properties properties) {
 		
 		try {
 			
@@ -57,6 +61,29 @@ public class PropertiesWriter {
 			e.printStackTrace();
 		}
 		
+	}
+	
+	public synchronized void writeLease(Lease lease) {
+		try {
+			
+			FileReader reader = new FileReader(file);
+			Properties properties = new Properties();
+			properties.load(reader);
+			
+			int staticLeaseAllocated = Integer.parseInt(properties.getProperty("staticLeaseAllocated"));
+			staticLeaseAllocated++;
+			properties.setProperty("lease"+staticLeaseAllocated+".ipAddress=",lease.getIPAddress().getHostAddress());
+			properties.setProperty("lease"+staticLeaseAllocated+".hardware=",lease.getHardwareAddress().toString());
+			properties.setProperty("lease"+staticLeaseAllocated+".duration=",Long.toString(lease.getDuration()));
+			properties.setProperty("staticLeaseAllocated", Integer.toString(staticLeaseAllocated));
+			
+			write(properties);
+			
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 	
 }
