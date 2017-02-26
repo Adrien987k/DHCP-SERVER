@@ -15,7 +15,7 @@ public class BytesOptionBase extends EncodableOptionBase<EncodedByte> {
 	
 	@Override
 	public List<Byte> getElements(){
-		List<Byte> result = new ArrayList<Byte>();
+		List<Byte> result = new ArrayList<>();
 		for(EncodedByte eb : getEncodables()){
 			result.add(eb.getElement());
 		}

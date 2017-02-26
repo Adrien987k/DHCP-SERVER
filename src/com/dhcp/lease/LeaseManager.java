@@ -1,6 +1,7 @@
 package com.dhcp.lease;
 
 import java.net.InetAddress;
+import java.util.HashMap;
 import java.util.TreeMap;
 
 import com.dhcp.server.ServerCore;
@@ -9,7 +10,7 @@ import com.dhcp.util.ServerLogger;
 
 public class LeaseManager {
 
-	private final TreeMap<InetAddress, Lease> leases = new TreeMap<>();
+	private final HashMap<InetAddress, Lease> leases = new HashMap<>();
 	//TODO Sauvegarder les nouveaux baux dans le fichier de config
 	//TODO déterminer si c'est static ou dynamique
 	
@@ -63,7 +64,7 @@ public class LeaseManager {
 	}
 	
 	private ServerCore getServer() { return server; }
-	private TreeMap<InetAddress,Lease> getLeases() { return leases; }
+	private HashMap<InetAddress,Lease> getLeases() { return leases; }
 	
 	private synchronized InetAddress findAvailableIpAddress() {
 		InetAddress ipAddress = getServer().getConfig().getIpAddressBandStart();

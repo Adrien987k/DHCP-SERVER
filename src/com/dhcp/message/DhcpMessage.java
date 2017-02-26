@@ -196,10 +196,24 @@ public class DhcpMessage {
 		else return false;
 	}
 	
+	public static String findStringOfType(int type){
+		switch(type){
+		case 1: return "DHCPDISCOVER";
+		case 2: return "DHCPOFFER"; 
+		case 3: return "DHCPREQUEST"; 
+		case 4: return "DHCPDECLINE";
+		case 5: return "DHCPACK";
+		case 6: return "DHCPNAK";
+		case 7: return "DHCPRELEASE";
+		case 8: return "DHCPINFORM";
+		default: return "UNKNOW";
+		}
+	}
+	
 	public String toString(){
 		StringBuilder sb = new StringBuilder();
 		sb.append("DHCP MESSAGE\n");
-		sb.append("TYPE : " + type +  "\n");
+		sb.append("TYPE : " + findStringOfType(type) +  "\n");
 		sb.append("OP : " + op + " HTYPE : " + htype + " HLEN : " + hlen + " HOPS : " + hops + "\n");
 		sb.append("XID : " + xid + " SECS : " + secs + " FLAGS : " + flags +  "\n");
 		sb.append("CIADDR : " + ciaddr + "\n");

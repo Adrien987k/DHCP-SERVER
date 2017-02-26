@@ -5,6 +5,7 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.net.InetAddress;
+import java.util.HashMap;
 import java.util.Properties;
 import java.util.TreeMap;
 
@@ -22,7 +23,7 @@ public class ServerConfig {
 	private long leaseDuration;
 	private int addressAvailable;
 	
-	private final TreeMap<InetAddress,Lease> staticLeases = new TreeMap<>();
+	private final HashMap<InetAddress,Lease> staticLeases = new HashMap<>();
 	
 	public ServerConfig(String config, ServerLogger logger) {
 		logger.systemMessage("Loading config from " + config);
@@ -41,7 +42,7 @@ public class ServerConfig {
 			this.leaseDuration = Long.parseLong(properties.getProperty("leaseDuration"));
 			this.addressAvailable = Integer.parseInt(properties.getProperty("addressAvailable"));
 			
-			for(int i = 0; i < Integer.parseInt(properties.getProperty("staticLeaseAllocated")); i ++) {
+			for(int i = 1; i <= Integer.parseInt(properties.getProperty("staticLeaseAllocated")); i ++) {
 				staticLeases.put(InetAddress.getByName(properties.getProperty("lease"+i+".ipAddress")),
 									new Lease(InetAddress.getByName(properties.getProperty("lease"+i+".ipAddress"))
 											,HardwareAddress.parseHardwareAddress(properties.getProperty("lease"+i+".hardwareAddress"))
@@ -80,7 +81,7 @@ public class ServerConfig {
 		return addressAvailable;
 	}
 	
-	public TreeMap<InetAddress,Lease> getStaticLeases() {
+	public HashMap<InetAddress,Lease> getStaticLeases() {
 		return staticLeases;
 	}
 

@@ -5,59 +5,51 @@ import java.nio.ByteBuffer;
 import com.dhcp.message.DhcpMessage;
 import com.dhcp.message.InvalidDhcpMessageException;
 import com.dhcp.message.Option;
-import com.dhcp.message.common.DhcpOption;
-import com.dhcp.util.BufferUtils;
+import com.dhcp.message.common.ShortsOptionBase;
 
-public class MessageTypeOption extends DhcpOption {
-
-	private short type = 0;
+public class MessageTypeOption extends ShortsOptionBase {
 	
 	public MessageTypeOption() {
-		super(Option.MESSAGE_TYPE);
+		super(Option.MESSAGE_TYPE, true);
 		
-		length = 1;
 		name = "DHCP Message Type";
 	}
 	
 	public MessageTypeOption(int type){
 		this();
-		this.type = (short) type;
-	}
-
-	@Override
-	public byte[] getBytes() {
-		byte[] result = new byte[]{ (byte) 53, (byte) 1, (byte) type };
-		return result;
+		addShort((short) type);
 	}
 	
 	public int getType(){
-		return type;
+		return getElements().get(0);
 	}
 	
 	public void setType(int type){
-		this.type = (short) type;
+		getElements().set(0, (short) type);
 	}
 	
 	@Override 
 	public boolean contentIsValid(){
+		short type = getElements().get(0);
 		return super.contentIsValid() && type > 0 && type < 9;
 	}
 	
 	@Override
 	public String toString(){
+		short type = getElements().get(0);
 		StringBuilder sb = new StringBuilder();
-		sb.append(super.toString());
-		sb.append("TYPE : " + type + "\n");
+		sb.append("CODE : " + code);
+		sb.append(" NAME : " + name);
+		sb.append(" LENGTH : " + length + "\n");
+		sb.append("TYPE : " + DhcpMessage.findStringOfType(type) + "\n");
 		return sb.toString();
 	}
 
 	@Override
 	public void parseDhcpOption(ByteBuffer buffer) throws InvalidDhcpMessageException {
-		length = BufferUtils.byteToShort(buffer.get());
-		if(length != 1) 
-			DhcpMessage.invalidDhcpMessage("dhcp message received with option type length different of 1");
-		type = BufferUtils.byteToShort(buffer.get());
-		if(length < (short) 1 || length > (short) 8) 
+		super.parseDhcpOption(buffer);
+		short type = getElements().get(0);
+		if(type < (short) 1 || type > (short) 8) 
 			DhcpMessage.invalidDhcpMessage("dhcp message received with unknow type");
 	}
 	

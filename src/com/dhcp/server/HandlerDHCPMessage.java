@@ -30,13 +30,6 @@ public class HandlerDHCPMessage extends Thread {
 	//TODO: déterminer cette addresse
 	InetAddress ciAddressSelected;
 	
-	@Deprecated
-	public HandlerDHCPMessage(DatagramPacket packet, ServerLogger logger) {
-		this.logger = logger;
-		DhcpMessage message = DhcpMessage.parseDhcpPacket(packet.getData());
-		handle(message);
-	}
-	
 	public HandlerDHCPMessage(DatagramPacket packet, ServerLogger logger,ServerCore server) {
 		this.server = server;
 		this.logger = logger;
@@ -45,7 +38,6 @@ public class HandlerDHCPMessage extends Thread {
 	}
 	
 	private synchronized void handle(DhcpMessage message) {
-		System.out.println(message);
 		
 		logger.messageReceived(message.toString());
 		
@@ -124,7 +116,7 @@ public class HandlerDHCPMessage extends Thread {
 		
 		response.setOp(DhcpMessage.BOOTREPLY);
 		response.setHtype( (short) 1 );
-		response.setLength( (short) 6 );
+		response.setHlen( (short) 6 );
 		response.setHops( (short) 0 );
 		
 		response.setXid(message.getXid());
