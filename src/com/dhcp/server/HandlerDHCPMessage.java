@@ -6,6 +6,7 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketException;
 import java.net.UnknownHostException;
+import java.util.HashMap;
 import java.util.TreeMap;
 
 import com.dhcp.message.DhcpMessage;
@@ -29,7 +30,7 @@ public class HandlerDHCPMessage extends Thread {
 	private ServerLogger logger;
 	private ServerCore server;
 	
-	public static final TreeMap<TransactionID,InetAddress> addressPreSelected = new TreeMap<>();
+	public static final HashMap<TransactionID,InetAddress> addressPreSelected = new HashMap<>();
 	
 	public HandlerDHCPMessage(DatagramPacket packet, ServerLogger logger,ServerCore server) {
 		this.server = server;
@@ -59,6 +60,7 @@ public class HandlerDHCPMessage extends Thread {
 		
 		DhcpMessage response = new DhcpMessage();
 		
+		response.setType(DhcpMessage.DHCPOFFER);
 		response.setOp(DhcpMessage.BOOTREPLY);
 		response.setHtype((short) 1);
 		response.setHlen((short) 6);
@@ -92,7 +94,9 @@ public class HandlerDHCPMessage extends Thread {
 		response.addOption(new MessageTypeOption(DhcpMessage.DHCPOFFER));
 		
 		response.setSname("No name given");
-		response.setFile("No film given");
+		response.setFile("No file given");
+		
+		logger.messageSent(response.toString());
 		
 		if(!response.validateBeforeSending()){
 			//TODO HANDLE Error
@@ -199,7 +203,7 @@ public class HandlerDHCPMessage extends Thread {
 				response = new DatagramPacket(message.getDhcpMessageBytes()
 						,message.getDhcpMessageBytes().length
 						,InetAddress.getByName("255.255.255.255")
-						,68);
+						,1234); //TODO port 1234 pour tester ! Le bon port est 68
 				}
 			
 			ds.send(response);

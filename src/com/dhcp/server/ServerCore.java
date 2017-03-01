@@ -48,14 +48,16 @@ public class ServerCore extends Thread {
 				ds67.setBroadcast(true);
 				try {
 					ds67.receive(packet);
-					pool.execute(new Thread(new HandlerDHCPMessage(packet,logger,this)));
+					// TODO Bloque sur l'appel et donc ne traite qu'un message à la fois 
+					//pool.execute(new HandlerDHCPMessage(packet,logger,this));
+					new Thread(new HandlerDHCPMessage(packet,logger,this)).start();
 				} catch (IOException e) {
-					
 				}
 			}
 		} catch (SocketException se) {
 			se.printStackTrace();
 		}
+		
 	}
 
 	public ServerConfig getConfig() {
