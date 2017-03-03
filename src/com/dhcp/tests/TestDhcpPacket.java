@@ -28,7 +28,14 @@ public class TestDhcpPacket {
 						DatagramPacket receive = new DatagramPacket((handler = new byte[messageTest.length]), messageTest.length);
 						ds1234.receive(receive);
 						System.out.println("-- RECIEVED -- ");
-						System.out.println(DhcpMessage.parseDhcpPacket(receive.getData()).toString());
+						
+						byte[] buffer = receive.getData();
+						for(byte b: buffer) {
+							System.out.print(b);
+						}
+						//System.out.println(DhcpMessage.parseDhcpPacket(buffer));
+							
+						//System.out.println(DhcpMessage.parseDhcpPacket(receive.getData()));
 					} catch (IOException e) {
 						e.printStackTrace();
 					}
@@ -37,7 +44,7 @@ public class TestDhcpPacket {
 				}
 				return;
 			}
-		}).start();
+		});
 		
 		DatagramSocket ds;
 		for(int i = 0; i < 5; i++) {
@@ -47,10 +54,10 @@ public class TestDhcpPacket {
 			
 			DatagramPacket message=new DatagramPacket(messageTest
 					,messageTest.length
-					,InetAddress.getByName("255.255.255.255")
+					,InetAddress.getByName("169.254.255.255")
 					//,InetAddress.getByName("169.254.244.39")
 					,1234);
-			//ds.send(message);
+			ds.send(message);
 		} catch (SocketException e) {
 			e.printStackTrace();
 		} catch (UnknownHostException e) {
