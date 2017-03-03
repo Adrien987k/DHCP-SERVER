@@ -7,16 +7,15 @@ import java.net.InetAddress;
 import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.util.HashMap;
-import java.util.TreeMap;
 
 import com.dhcp.message.DhcpMessage;
 import com.dhcp.message.InvalidDhcpMessageException;
 import com.dhcp.message.Option;
-import com.dhcp.message.common.EncodedAddress;
 import com.dhcp.message.options.IPLeaseTimeOption;
 import com.dhcp.message.options.IpRequestedOption;
 import com.dhcp.message.options.MessageTypeOption;
 import com.dhcp.message.options.ServerIdentifierOption;
+import com.dhcp.message.options.SubnetMaskOption;
 import com.dhcp.util.ServerLogger;
 import com.dhcp.util.TransactionID;
 
@@ -39,7 +38,7 @@ public class HandlerDHCPMessage extends Thread {
 		handle(message);
 	}
 	
-	private synchronized void handle(DhcpMessage message) {
+	private void handle(DhcpMessage message) {
 		
 		logger.messageReceived(message.toString());
 		
@@ -56,7 +55,7 @@ public class HandlerDHCPMessage extends Thread {
 		}
 	}
 	
-	private synchronized boolean handleDISCOVER(DhcpMessage message) {
+	private boolean handleDISCOVER(DhcpMessage message) {
 		
 		DhcpMessage response = new DhcpMessage();
 		
@@ -73,7 +72,13 @@ public class HandlerDHCPMessage extends Thread {
 		InetAddress addressPreSelected; 
 		if( (addressPreSelected = getServer().getLeaseManager().findAvailableIpAddress(new TransactionID(message.getXid()))) != null )
 			response.setYiaddr(addressPreSelected);
-		
+		try {
+			//TODO mettre la bonne adresse ip
+			response.setYiaddr(InetAddress.getByName("169.254.0.15"));
+		} catch (UnknownHostException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
 		response.setSiaddr(getServer().getConfig().getServerAddress());
 		response.setGiaddr(message.getGiaddr());
 		response.setChaddr(message.getChaddr());
@@ -86,12 +91,17 @@ public class HandlerDHCPMessage extends Thread {
 		}
 		
 		try {
-			response.addOption(new ServerIdentifierOption());
+			response.addOption(new ServerIdentifierOption(getServer().getConfig().getServerAddress()));
 		} catch (UnknownHostException e) {
 			e.printStackTrace();
 		}
 		
 		response.addOption(new MessageTypeOption(DhcpMessage.DHCPOFFER));
+		try {
+			response.addOption(new SubnetMaskOption(getServer().getConfig().getNetMask()));
+		} catch (UnknownHostException e1) {
+			e1.printStackTrace();
+		}
 		
 		response.setSname("No name given");
 		response.setFile("No file given");
@@ -118,7 +128,7 @@ public class HandlerDHCPMessage extends Thread {
 		return false;
 	}
 
-	private synchronized boolean handleREQUEST(DhcpMessage message) {
+	private boolean handleREQUEST(DhcpMessage message) {
 		
 		InetAddress ipAddressAllocated = null;
 		boolean leaseAttributed = false;
@@ -148,18 +158,22 @@ public class HandlerDHCPMessage extends Thread {
 		
 		if(leaseAttributed) {
 			response.setCiaddr(message.getCiaddr());
-			response.setYiaddr(ipAddressAllocated);response.setSiaddr(getServer().getConfig().getServerAddress());
+			response.setYiaddr(ipAddressAllocated);
+			response.setSiaddr(getServer().getConfig().getServerAddress());
 			
 			response.addOption(message.getOptions().getByCode(Option.IP_LEASE_TIME));
 			response.addOption(new MessageTypeOption(DhcpMessage.DHCPPACK));
 		} else {
 			response.addOption(new MessageTypeOption(DhcpMessage.DHCPNAK));
 		}
-		
 		try {
-			ServerIdentifierOption sio = new ServerIdentifierOption();
-			sio.addEncodable(new EncodedAddress(getServer().getConfig().getServerAddress()));
-			response.addOption(sio);
+			//TODO mettre la bonne adresse IP
+			response.setYiaddr(InetAddress.getByName("169.254.0.15"));
+		} catch (UnknownHostException e1) {
+			e1.printStackTrace();
+		}
+		try {
+			response.addOption(new ServerIdentifierOption(getServer().getConfig().getServerAddress()));
 		} catch (UnknownHostException e) {
 			e.printStackTrace();
 		}
@@ -177,7 +191,7 @@ public class HandlerDHCPMessage extends Thread {
 		return false;
 	}
 	
-	private synchronized boolean handleRELEASE(DhcpMessage message) {
+	private boolean handleRELEASE(DhcpMessage message) {
 		
 		if(message.getCiaddr().getAddress()[0] != 0) {
 			server.getLeaseManager().release(message.getCiaddr());
@@ -186,7 +200,7 @@ public class HandlerDHCPMessage extends Thread {
 		return false;
 	}
 	
-	private synchronized boolean sendResponse(DhcpMessage message) {
+	private boolean sendResponse(DhcpMessage message) {
 		
 		try {
 			
@@ -202,8 +216,8 @@ public class HandlerDHCPMessage extends Thread {
 			else { 
 				response = new DatagramPacket(message.getDhcpMessageBytes()
 						,message.getDhcpMessageBytes().length
-						,InetAddress.getByName("255.255.255.255")
-						,1234); //TODO port 1234 pour tester ! Le bon port est 68
+						,getServer().getConfig().getNetMask()
+						,68); //TODO port 1234 pour tester ! Le bon port est 68
 				}
 			
 			ds.send(response);
@@ -222,7 +236,7 @@ public class HandlerDHCPMessage extends Thread {
 			return false;
 		}
 		
-		
+		logger.systemMessage("Message sent");
 		return true;
 	}
 	

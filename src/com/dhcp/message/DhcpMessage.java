@@ -165,7 +165,7 @@ public class DhcpMessage {
 			dhcpMessage.length = DHCP_MESSAGE_MIN_SIZE + dhcpMessage.options.totalLength();
 			
 		} catch(InvalidDhcpMessageException e){
-			//return null; 
+			e.printStackTrace();
 		}
 		dhcpMessage.setType(dhcpMessage.options.getDhcpMessageType());
 		
@@ -221,7 +221,7 @@ public class DhcpMessage {
 		sb.append("SIADDR : " + siaddr + "\n");
 		sb.append("GIADDR : " + giaddr + "\n");
 		sb.append("CHADDR : ");
-		for(byte b : chaddr.getBytes()) sb.append(b + " ");
+		sb.append(chaddr.toString());
 		sb.append("\nSNAME : " + sname + "\n");
 		sb.append("FILE : " + file + "\n");
 		sb.append("MAGIC COOKIE : ");
