@@ -7,7 +7,6 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.util.HashMap;
 import java.util.Properties;
-import java.util.TreeMap;
 
 import com.dhcp.lease.Lease;
 import com.dhcp.util.HardwareAddress;

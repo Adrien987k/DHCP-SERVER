@@ -85,6 +85,7 @@ public class EncodedTime implements Encodable {
 		return new EncodedTime(time);
 	}
 	
+	@Override
 	public String toString(){
 		StringBuilder sb = new StringBuilder();
 		sb.append("Days : " + getDays());

@@ -7,8 +7,6 @@ import java.net.InetAddress;
 import java.net.SocketException;
 import java.net.UnknownHostException;
 
-import com.dhcp.message.DhcpMessage;
-
 public class TestDhcpPacket {
 	public static void main(String[] args) {
 		boolean stop = false;

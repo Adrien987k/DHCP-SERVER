@@ -33,6 +33,7 @@ public class EncodedAddress implements Encodable {
 		return new EncodedAddress(address);
 	}
 	
+	@Override
 	public InetAddress getElement(){
 		return address;
 	}
