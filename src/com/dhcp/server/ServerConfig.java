@@ -16,6 +16,7 @@ import com.dhcp.util.ServerLogger;
 public class ServerConfig {
 
 	private String serverName;
+	private InetAddress netMask;
 	private InetAddress serverAddress;
 	private InetAddress ipAddressBandStart;
 	private InetAddress ipAddressBandEnd;
@@ -35,6 +36,7 @@ public class ServerConfig {
 			properties.load(reader);
 			
 			this.serverName = properties.getProperty("serverName");
+			this.netMask= InetAddress.getByName(properties.getProperty("netMask"));
 			this.serverAddress = InetAddress.getByName(properties.getProperty("serverAddress"));
 			this.ipAddressBandStart = InetAddress.getByName(properties.getProperty("iPAddressBandStart"));
 			this.ipAddressBandEnd = InetAddress.getByName(properties.getProperty("iPAddressBandEnd"));
@@ -61,6 +63,12 @@ public class ServerConfig {
 		return serverName;
 	}
 
+	public InetAddress getNetMask() {
+		return netMask;
+	}
+	
+	//TODO mettre en static
+	@Deprecated
 	public InetAddress getServerAddress() {
 		return serverAddress;
 	}
