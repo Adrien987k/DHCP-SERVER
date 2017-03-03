@@ -1,5 +1,6 @@
 package com.dhcp.message.options;
 
+import java.net.InetAddress;
 import java.net.UnknownHostException;
 
 import com.dhcp.message.Option;
@@ -11,6 +12,11 @@ public class SubnetMaskOption extends AddressOptionBase {
 		super(Option.SUBNET_MASK, true);
 		
 		name = "Subnet Mask Option";
+	}
+	
+	public SubnetMaskOption(InetAddress netMask) throws UnknownHostException {
+		this();
+		addAddress(netMask);
 	}
 	
 }
