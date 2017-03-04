@@ -19,11 +19,6 @@ import com.dhcp.message.options.SubnetMaskOption;
 import com.dhcp.util.ServerLogger;
 import com.dhcp.util.TransactionID;
 
-
-//TODO: distribuer le travail pour chaque requête dans une classe à part
-//			méthodes un peu longues et a fortio ri la classe l'est aussi
-// ou alors tout garder et faire un handler par client (donc qui gère la transaction complète)
-// ou alors une liste avec les traitements en cours contenant l'xid et l'addresse
 public class HandlerDHCPMessage extends Thread {
 
 	private ServerLogger logger;
@@ -69,16 +64,14 @@ public class HandlerDHCPMessage extends Thread {
 		response.setSecs((short) 0);
 		response.setFlags(message.getFlags());
 		
-		InetAddress addressPreSelected; 
-		if( (addressPreSelected = getServer().getLeaseManager().findAvailableIpAddress(new TransactionID(message.getXid()))) != null )
+		InetAddress addressPreSelected;
+		TransactionID xid = new TransactionID(message.getXid());
+		if( (addressPreSelected = getServer().getLeaseManager().findAvailableIpAddress(xid)) != null )
 			response.setYiaddr(addressPreSelected);
-		try {
-			//TODO mettre la bonne adresse ip
-			response.setYiaddr(InetAddress.getByName("169.254.0.15"));
-		} catch (UnknownHostException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
+		else
+			logger.systemMessage("error");
+
+
 		response.setSiaddr(getServer().getConfig().getServerAddress());
 		response.setGiaddr(message.getGiaddr());
 		response.setChaddr(message.getChaddr());
@@ -103,8 +96,8 @@ public class HandlerDHCPMessage extends Thread {
 			e1.printStackTrace();
 		}
 		
-		response.setSname("No name given");
-		response.setFile("No file given");
+		response.setSname("");
+		response.setFile("");
 		
 		logger.messageSent(response.toString());
 		
@@ -115,11 +108,11 @@ public class HandlerDHCPMessage extends Thread {
 		if(sendResponse(response)) {
 			
 			try {
-				Thread.sleep(15000);
+				Thread.sleep(2000);
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			} finally {
-				HandlerDHCPMessage.addressPreSelected.remove(new TransactionID(message.getXid()));
+				HandlerDHCPMessage.addressPreSelected.remove(xid);
 			}
 			return true;
 		}
@@ -127,7 +120,9 @@ public class HandlerDHCPMessage extends Thread {
 		
 		return false;
 	}
-
+	
+	//TODO Regarder les REQUEST de renouvellement
+	//D'autres options peut être, l'envoi de l'ACK ne marche pas pour l'instant
 	private boolean handleREQUEST(DhcpMessage message) {
 		
 		InetAddress ipAddressAllocated = null;
@@ -135,10 +130,10 @@ public class HandlerDHCPMessage extends Thread {
 
 		if(message.getCiaddr().getAddress()[0] == 0) {
 			InetAddress ipAddressRequested = ( (IpRequestedOption) message.getOptions().getByCode(Option.IP_REQUESTED)).getElements().get(0) ;
-			if( ( ipAddressRequested = getServer().getLeaseManager().tryAddressElseRand(
-																						ipAddressRequested
-																						, message.getChaddr())) != null);
+			if( ( ipAddressAllocated = getServer().getLeaseManager().tryAddressElseRand(ipAddressRequested
+																						, message.getChaddr())) != null) {
 				leaseAttributed = true;
+			}
 		}
 		
 		DhcpMessage response = new DhcpMessage();
@@ -166,27 +161,28 @@ public class HandlerDHCPMessage extends Thread {
 		} else {
 			response.addOption(new MessageTypeOption(DhcpMessage.DHCPNAK));
 		}
-		try {
-			//TODO mettre la bonne adresse IP
-			response.setYiaddr(InetAddress.getByName("169.254.0.15"));
-		} catch (UnknownHostException e1) {
-			e1.printStackTrace();
-		}
+
 		try {
 			response.addOption(new ServerIdentifierOption(getServer().getConfig().getServerAddress()));
 		} catch (UnknownHostException e) {
 			e.printStackTrace();
 		}
 		
-		response.setSname("No name given");
-		response.setFile("No file given");
+		response.setSname("");
+		response.setFile("");
 		
 		if(!response.validateBeforeSending()){
 			//TODO HANDLE Error
+			if(leaseAttributed)
+				logger.systemMessage("INVALID DHCPACK ");
+			else
+				logger.systemMessage("INVALID DHCPNACK ");
 		}
 		
-		if(sendResponse(response))
+		if(sendResponse(response)) {
 			return true;
+		}
+			
 				
 		return false;
 	}
@@ -217,7 +213,7 @@ public class HandlerDHCPMessage extends Thread {
 				response = new DatagramPacket(message.getDhcpMessageBytes()
 						,message.getDhcpMessageBytes().length
 						,getServer().getConfig().getNetMask()
-						,68); //TODO port 1234 pour tester ! Le bon port est 68
+						,68); 
 				}
 			
 			ds.send(response);
@@ -236,7 +232,6 @@ public class HandlerDHCPMessage extends Thread {
 			return false;
 		}
 		
-		logger.systemMessage("Message sent");
 		return true;
 	}
 	

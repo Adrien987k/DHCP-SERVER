@@ -1,6 +1,8 @@
 package com.dhcp.lease;
 
 import java.net.InetAddress;
+import java.net.UnknownHostException;
+import java.nio.ByteBuffer;
 import java.util.HashMap;
 
 import com.dhcp.server.HandlerDHCPMessage;
@@ -12,13 +14,9 @@ import com.dhcp.util.TransactionID;
 public class LeaseManager {
 
 	private final HashMap<InetAddress, Lease> leases = new HashMap<>();
-	//TODO Sauvegarder les nouveaux baux dans le fichier de config
-	//TODO déterminer si c'est static ou dynamique
 	
-	
-	@SuppressWarnings("unused")
 	private ServerLogger logger;
-	
+		
 	private ServerCore server;
 	
 	
@@ -41,9 +39,9 @@ public class LeaseManager {
 					Lease lease = new Lease(ipAddress,hardwareAddress,getServer().getConfig().getLeaseDuration());
 					getLeases().put(lease.getIPAddress(), lease);
 					return lease.getIPAddress();
-				}
+				}	
 			}
-			
+			logger.systemMessage("No available IP Address for Hardware Address " + hardwareAddress);
 			return null;
 		}
 	
@@ -52,12 +50,18 @@ public class LeaseManager {
 		if(getLeases().get(ipAddress) != null) {
 			if(getLeases().get(ipAddress).isAvailable()) {
 					getLeases().get(ipAddress).bind(hardwareAddress);
+					logger.systemMessage("Lease " + getLeases().get(ipAddress) + " has been allocated with the IP Address '" + ipAddress + "' for the Hardware address '" + hardwareAddress + "'");
 					return ipAddress;
+			} else if(getLeases().get(ipAddress).getHardwareAddress().toString().equals(hardwareAddress.toString())) { 
+				logger.systemMessage("Lease " + getLeases().get(ipAddress) + " has been extended with the IP Address '" + ipAddress + "' for the Hardware address '" + hardwareAddress + "'");
+				return ipAddress;
 			} else {
+				logger.systemMessage("The IP address '" + ipAddress+"' for Hardware Address '" + hardwareAddress + "' is not availbale");
 				return getRandIPAddress(hardwareAddress);
 			}
 		} else {
-			getLeases().put(ipAddress, new Lease(ipAddress,hardwareAddress,getServer().getConfig().getLeaseDuration())); 
+			getLeases().put(ipAddress, new Lease(ipAddress,hardwareAddress,getServer().getConfig().getLeaseDuration()));
+			logger.systemMessage("Lease " + getLeases().get(ipAddress) + " has been allocated with the IP Address '" + ipAddress + "' for the Hardware address '" + hardwareAddress + "'");
 			return ipAddress;
 		}
 		
@@ -69,30 +73,38 @@ public class LeaseManager {
 	
 	private synchronized InetAddress findAvailableIpAddress() {
 		InetAddress ipAddress = getServer().getConfig().getIpAddressBandStart();
-				
-		for(int i = 0; i < getServer().getConfig().getAddressAvailable() ; i++) {
-			ipAddress.getAddress()[3] += i;
-			if(!getLeases().containsKey(ipAddress)
-					&& HandlerDHCPMessage.addressPreSelected.containsValue(ipAddress)) {
-				return ipAddress;
-			}
-		}
 		
+		ByteBuffer addressByteBuffer = ByteBuffer.wrap(ipAddress.getAddress());
+		byte[] addressArray = addressByteBuffer.array();
+		
+
+		try {
+			for(int i = 0; i < getServer().getConfig().getAddressAvailable() ; i++) {
+			
+				addressArray[3]  += 1;
+				ipAddress = InetAddress.getByAddress(addressArray);
+				
+					System.out.println("IP ADDRESS -> "+ ipAddress);
+				
+				
+				if(!getLeases().containsKey(ipAddress)
+						&& !HandlerDHCPMessage.addressPreSelected.containsValue(ipAddress)) {
+					logger.systemMessage("IP Address selected: " + ipAddress);
+					return ipAddress;
+				}
+			}
+		} catch (UnknownHostException e) {
+			
+			e.printStackTrace();
+		}
+		logger.systemMessage("ERROR");
 		return null;
 	}
 	
 	public synchronized InetAddress findAvailableIpAddress(TransactionID xid) {
-		InetAddress ipAddress = getServer().getConfig().getIpAddressBandStart();
-				
-		for(int i = 0; i < getServer().getConfig().getAddressAvailable() ; i++) {
-			ipAddress.getAddress()[3] += i;
-			if(!getLeases().containsKey(ipAddress)
-					&& HandlerDHCPMessage.addressPreSelected.containsValue(ipAddress)) {
-				HandlerDHCPMessage.addressPreSelected.put(xid, ipAddress);
-				return ipAddress;
-			}
-		}
-		
-		return null;
+		InetAddress ipAddress = findAvailableIpAddress();
+		if(ipAddress != null)
+			HandlerDHCPMessage.addressPreSelected.put(xid, ipAddress);
+		return ipAddress;
 	}
 }

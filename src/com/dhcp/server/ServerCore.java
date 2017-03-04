@@ -16,6 +16,7 @@ public class ServerCore extends Thread {
 	private ServerConfig serverConfig;
 	private ServerLogger logger = null;
 	
+	@SuppressWarnings("unused")
 	private ExecutorService pool = null;
 	private LeaseManager leaseManager = null;
 	private boolean stop = false;

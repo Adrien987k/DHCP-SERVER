@@ -37,8 +37,8 @@ public class ServerConfig {
 			this.serverName = properties.getProperty("serverName");
 			this.netMask= InetAddress.getByName(properties.getProperty("netMask"));
 			this.serverAddress = InetAddress.getByName(properties.getProperty("serverAddress"));
-			this.ipAddressBandStart = InetAddress.getByName(properties.getProperty("iPAddressBandStart"));
-			this.ipAddressBandEnd = InetAddress.getByName(properties.getProperty("iPAddressBandEnd"));
+			this.ipAddressBandStart = InetAddress.getByName(properties.getProperty("ipAddressBandStart"));
+			this.ipAddressBandEnd = InetAddress.getByName(properties.getProperty("ipAddressBandEnd"));
 			
 			this.leaseDuration = Long.parseLong(properties.getProperty("leaseDuration"));
 			this.addressAvailable = Integer.parseInt(properties.getProperty("addressAvailable"));
@@ -66,8 +66,6 @@ public class ServerConfig {
 		return netMask;
 	}
 	
-	//TODO mettre en static
-	@Deprecated
 	public InetAddress getServerAddress() {
 		return serverAddress;
 	}
