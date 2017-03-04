@@ -13,4 +13,7 @@ public class ServerLogger {
 	public void messageSent(String s){
 		System.out.println(" -- MESSAGE SENT -- \n" + s + "\n");
 	}
+	public void messageSent(){
+		messageSent("");
+	}
 }
