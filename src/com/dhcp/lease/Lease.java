@@ -8,6 +8,8 @@ import com.dhcp.util.HardwareAddress;
 public class Lease {
 	private InetAddress ipAddress;
 	private HardwareAddress currentHardwareAddress;
+	
+	@Deprecated
 	private ArrayList<HardwareAddress> knownHardwareAddresses = new ArrayList<>();
 	
 	private long duration;
