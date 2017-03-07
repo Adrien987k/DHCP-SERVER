@@ -17,6 +17,7 @@ public class ServerConfig {
 	private String serverName;
 	private InetAddress netMask;
 	private InetAddress serverAddress;
+	private InetAddress routerAddress;
 	private InetAddress ipAddressBandStart;
 	private InetAddress ipAddressBandEnd;
 	
@@ -37,6 +38,7 @@ public class ServerConfig {
 			this.serverName = properties.getProperty("serverName");
 			this.netMask= InetAddress.getByName(properties.getProperty("netMask"));
 			this.serverAddress = InetAddress.getByName(properties.getProperty("serverAddress"));
+			this.routerAddress = InetAddress.getByName(properties.getProperty("routerAddress"));
 			this.ipAddressBandStart = InetAddress.getByName(properties.getProperty("ipAddressBandStart"));
 			this.ipAddressBandEnd = InetAddress.getByName(properties.getProperty("ipAddressBandEnd"));
 			
@@ -70,6 +72,10 @@ public class ServerConfig {
 		return serverAddress;
 	}
 
+	public InetAddress getRouterAddress() {
+		return routerAddress;
+	}
+	
 	public InetAddress getIpAddressBandStart() {
 		return ipAddressBandStart;
 	}

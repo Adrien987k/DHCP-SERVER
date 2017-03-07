@@ -182,9 +182,7 @@ public class DhcpMessage {
 		       && type > 0 && type < 9
 		       && ciaddr != null
 		       && giaddr != null
-		       && ciaddr != null
 		       && yiaddr != null
-		       && giaddr != null
 		       && chaddr != null
 		       && options.isValidOptionCollection();
 	}

@@ -38,7 +38,8 @@ public class PropertiesWriter {
 
 			cfg.write("#ip address properties"+"\n");
 			cfg.write("netMask="+properties.getProperty("netMask")+"\n");
-			cfg.write("ipAddress="+properties.getProperty("ipAddress")+"\n");
+			cfg.write("serverAddress="+properties.getProperty("serverAddress")+"\n");
+			cfg.write("routerAddress="+properties.getProperty("routerAddress")+"\n");
 			cfg.write("ipAddressBandStart="+properties.getProperty("ipAddressBandStart")+"\n");
 			cfg.write("ipAddressBandEnd="+properties.getProperty("ipAddressBandEnd")+"\n");
 			cfg.write("addressAvailable="+properties.getProperty("addressAvailable")+"\n"+"\n");

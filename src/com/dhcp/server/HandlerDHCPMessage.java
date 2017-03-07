@@ -11,9 +11,11 @@ import java.util.HashMap;
 import com.dhcp.message.DhcpMessage;
 import com.dhcp.message.InvalidDhcpMessageException;
 import com.dhcp.message.Option;
+import com.dhcp.message.options.DNSOption;
 import com.dhcp.message.options.IPLeaseTimeOption;
 import com.dhcp.message.options.IpRequestedOption;
 import com.dhcp.message.options.MessageTypeOption;
+import com.dhcp.message.options.RouterOption;
 import com.dhcp.message.options.ServerIdentifierOption;
 import com.dhcp.message.options.SubnetMaskOption;
 import com.dhcp.util.ServerLogger;
@@ -39,14 +41,14 @@ public class HandlerDHCPMessage extends Thread {
 		
 		/* TODO A la fin du projet (pour ignorer les messages non valides) 
 		   
-		   if(!message.isValid()) return;
+		   
 		 */
 		
 		switch(message.getType()) {
 			case DhcpMessage.DHCPDISCOVER: handleDISCOVER(message); break;
 			case DhcpMessage.DHCPREQUEST: handleREQUEST(message); break;
 			case DhcpMessage.DHCPRELEASE: handleRELEASE(message); break;
-			default: throw new IllegalArgumentException("This DHCP message type is not supported.");
+			default: logger.systemMessage("Message " + message + " ignored");
 		}
 	}
 	
@@ -85,16 +87,13 @@ public class HandlerDHCPMessage extends Thread {
 		
 		try {
 			response.addOption(new ServerIdentifierOption(getServer().getConfig().getServerAddress()));
+			response.addOption(new DNSOption(getServer().getConfig().getServerAddress()));
+			response.addOption(new SubnetMaskOption(getServer().getConfig().getNetMask()));
 		} catch (UnknownHostException e) {
 			e.printStackTrace();
 		}
 		
 		response.addOption(new MessageTypeOption(DhcpMessage.DHCPOFFER));
-		try {
-			response.addOption(new SubnetMaskOption(getServer().getConfig().getNetMask()));
-		} catch (UnknownHostException e1) {
-			e1.printStackTrace();
-		}
 		
 		response.setSname("");
 		response.setFile("");
@@ -121,8 +120,9 @@ public class HandlerDHCPMessage extends Thread {
 		return false;
 	}
 	
-	//TODO Regarder les REQUEST de renouvellement
-	//D'autres options peut être, l'envoi de l'ACK ne marche pas pour l'instant
+	
+	//TODO d'autres options pour le renouvellement doivent, peut être, être ajoutées
+	//l'ack d'un client ayant déjà une adresse allouée avant mais s'il renvoie un Discover ça marche
 	private boolean handleREQUEST(DhcpMessage message) {
 		
 		InetAddress ipAddressAllocated = null;
@@ -158,15 +158,20 @@ public class HandlerDHCPMessage extends Thread {
 			
 			response.addOption(message.getOptions().getByCode(Option.IP_LEASE_TIME));
 			response.addOption(new MessageTypeOption(DhcpMessage.DHCPPACK));
+			response.setType(DhcpMessage.DHCPPACK);
+			try {
+				response.addOption(new ServerIdentifierOption(getServer().getConfig().getServerAddress()));
+				response.addOption(new DNSOption(getServer().getConfig().getServerAddress()));
+				response.addOption(new RouterOption(getServer().getConfig().getRouterAddress()));
+			} catch (UnknownHostException e) {
+				e.printStackTrace();
+			}
 		} else {
 			response.addOption(new MessageTypeOption(DhcpMessage.DHCPNAK));
+			response.setType(DhcpMessage.DHCPNAK);
 		}
 
-		try {
-			response.addOption(new ServerIdentifierOption(getServer().getConfig().getServerAddress()));
-		} catch (UnknownHostException e) {
-			e.printStackTrace();
-		}
+		
 		
 		response.setSname("");
 		response.setFile("");
@@ -180,6 +185,7 @@ public class HandlerDHCPMessage extends Thread {
 		}
 		
 		if(sendResponse(response)) {
+			logger.messageSent(response.toString());
 			return true;
 		}
 			
