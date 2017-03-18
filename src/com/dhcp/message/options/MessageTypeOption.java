@@ -7,6 +7,11 @@ import com.dhcp.message.InvalidDhcpMessageException;
 import com.dhcp.message.Option;
 import com.dhcp.message.common.ShortsOptionBase;
 
+/**
+ * 
+ * @author Adrien
+ *
+ */
 public class MessageTypeOption extends ShortsOptionBase {
 	
 	public MessageTypeOption() {

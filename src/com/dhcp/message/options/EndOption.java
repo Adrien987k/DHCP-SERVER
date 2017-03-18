@@ -6,6 +6,11 @@ import com.dhcp.message.InvalidDhcpMessageException;
 import com.dhcp.message.Option;
 import com.dhcp.message.common.DhcpOption;
 
+/**
+ * 
+ * @author Adrien
+ *
+ */
 public class EndOption extends DhcpOption {
 
 	public EndOption() {

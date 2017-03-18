@@ -4,6 +4,12 @@ import java.nio.ByteBuffer;
 
 import com.dhcp.message.InvalidDhcpMessageException;
 
+/**
+ * Represent one Dhcp Option
+ * 
+ * @author Adrien
+ *
+ */
 public abstract class DhcpOption {
 		
 	protected short code = 0;
@@ -11,20 +17,30 @@ public abstract class DhcpOption {
 	
 	protected String name = "";
 	
-	//protected byte[] content = null;
-	
 	public DhcpOption(short code){
 		this.code = code;
 	}
 	
+	/**
+	 * @return A byte array containing all the encoded data of this option
+	 * @throws InvalidDhcpMessageException
+	 */
 	public abstract byte[] getBytes() throws InvalidDhcpMessageException;
+	
+	/**
+	 * Get the data of a buffer and fill this option with it
+	 * 
+	 * @param buffer The encoded data to collect
+	 * @throws InvalidDhcpMessageException
+	 */
 	public abstract void parseDhcpOption(ByteBuffer buffer) throws InvalidDhcpMessageException;
 	
+	/**
+	 * @return True if this option is valid
+	 */
 	public boolean contentIsValid(){
 		boolean isValid = true;
 		if(code < 0 || code > 255) isValid = false;
-		//if(content == null) isValid = false;
-		//if((length != 0) && content.length != length) isValid = false;
 		return isValid;
 	}
 	
@@ -36,6 +52,8 @@ public abstract class DhcpOption {
 		sb.append(" LENGTH : " + length + "\n");
 		return sb.toString();
 	}
+	
+	/*GETTERS AND SETTERS*/
 	
 	public short getContentLength(){
 		return length;
@@ -56,5 +74,7 @@ public abstract class DhcpOption {
 	public String getName(){
 		return name;
 	}
+	
+	/*END OF GETTERS AND SETTERS*/
 	
 }

@@ -6,6 +6,11 @@ import java.net.UnknownHostException;
 import com.dhcp.message.Option;
 import com.dhcp.message.common.AddressOptionBase;
 
+/**
+ * 
+ * @author Adrien
+ *
+ */
 public class IpRequestedOption extends AddressOptionBase {
 
 	public IpRequestedOption() throws UnknownHostException {

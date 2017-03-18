@@ -3,6 +3,11 @@ package com.dhcp.message.options;
 import com.dhcp.message.Option;
 import com.dhcp.message.common.TimesOptionBase;
 
+/**
+ * 
+ * @author Adrien
+ *
+ */
 public class IPLeaseTimeOption extends TimesOptionBase {
 	
 	public IPLeaseTimeOption(){

@@ -3,6 +3,12 @@ package com.dhcp.message.common;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 
+/**
+ * An object that represent an Encoded Address
+ * 
+ * @author Adrien
+ *
+ */
 public class EncodedAddress implements Encodable {
 		
 	public InetAddress address;
@@ -11,6 +17,9 @@ public class EncodedAddress implements Encodable {
 		this.address = address;
 	}
 
+	/**
+	 * @return the bytes of the address
+	 */
 	@Override
 	public byte[] getBytes() {
 		return address.getAddress();

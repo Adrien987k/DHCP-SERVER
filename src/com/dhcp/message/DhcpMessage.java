@@ -9,10 +9,17 @@ import com.dhcp.util.BufferUtils;
 import com.dhcp.util.HardwareAddress;
 import com.dhcp.util.ServerLogger;
 
+/**
+ * Represent a DHCP Message
+ * 
+ * @author Adrien
+ *
+ */
 public class DhcpMessage {
 	
 	public static final int DHCP_MESSAGE_MAX_SIZE = 1024;
 	public static final int DHCP_MESSAGE_MIN_SIZE = 244;
+	
 	public static InetAddress ZERO_IP_ADDRESS = null;
 	
 	public static final int DHCPDISCOVER = 1;
@@ -28,6 +35,7 @@ public class DhcpMessage {
 	public static final short BOOTREPLY = 2;
 	
 	private int type;
+	
 	private int length = 0;
 	
 	private short op = 0;
@@ -49,6 +57,7 @@ public class DhcpMessage {
 	private String file;
 	
 	private final static byte[] magicCookie = { (byte) 99, (byte) 130, (byte) 83, (byte) 99, }; 
+	
 	private DhcpOptionCollection options = new DhcpOptionCollection();
 	
 	public DhcpMessage(){
@@ -64,6 +73,10 @@ public class DhcpMessage {
 		}
 	}
 	
+	/**
+	 * @return an byte array containing all the encoded date of the message
+	 * @throws InvalidDhcpMessageException
+	 */
 	public byte[] getDhcpMessageBytes() throws InvalidDhcpMessageException {
 		if(length < DhcpMessage.DHCP_MESSAGE_MIN_SIZE) 
 			DhcpMessage.invalidDhcpMessage("length error: length = " + length + ". it should be > " + DhcpMessage.DHCP_MESSAGE_MIN_SIZE);
@@ -100,11 +113,19 @@ public class DhcpMessage {
 		return buffer.array();
 	}
 	
+	/**
+	 * @param message The error message to log
+	 * @throws InvalidDhcpMessageException
+	 */
 	public static void invalidDhcpMessage(String message) throws InvalidDhcpMessageException {
 		ServerLogger.error(ServerLogger.SEVERITY_LOW, message);
 		throw new InvalidDhcpMessageException(message);
 	}
 	
+	/**
+	 * @param test The byte array to test
+	 * @return True if test is a magic cookie 
+	 */
 	private static boolean validateMagicCookie(byte[] test){
 		return    (test[0] == (byte) 99)
 			   && (BufferUtils.byteToShort(test[1]) == (short) 130)
@@ -112,6 +133,12 @@ public class DhcpMessage {
 			   && (test[3] == (byte) 99);
 	}
 	
+	/**
+	 * Transform a byte array into a DhcpMessage
+	 * 
+	 * @param byteTab The byte array to parse
+	 * @return a new DhcpMessage containing all the date of byteTab
+	 */
 	public static DhcpMessage parseDhcpPacket(byte[] byteTab) {
 		ByteBuffer buffer = null; 
 		DhcpMessage dhcpMessage = new DhcpMessage();
@@ -165,18 +192,27 @@ public class DhcpMessage {
 			dhcpMessage.length = DHCP_MESSAGE_MIN_SIZE + dhcpMessage.options.totalLength();
 			
 		} catch(InvalidDhcpMessageException e){
-			e.printStackTrace();
+			
 		}
 		dhcpMessage.setType(dhcpMessage.options.getDhcpMessageType());
 		
 		return dhcpMessage;
 	}
 	
+	/**
+	 * Prepare a this message before send it
+	 * This method should be call before all sending
+	 * 
+	 * @return True if this message is a valid dhcp message
+	 */
 	public boolean validateBeforeSending(){
 		length = DHCP_MESSAGE_MIN_SIZE + options.totalLength();
 		return isValid();
 	}
 	
+	/**
+	 * @return True if this message is a valid dhcp message
+	 */
 	public boolean isValid(){
 		return length >= DHCP_MESSAGE_MIN_SIZE && length <= DHCP_MESSAGE_MAX_SIZE
 		       && type > 0 && type < 9
@@ -187,6 +223,12 @@ public class DhcpMessage {
 		       && options.isValidOptionCollection();
 	}
 	
+	/**
+	 * Add an option to this dhcp message
+	 * 
+	 * @param option The option to add
+	 * @return True if the option have been added, false otherwise
+	 */
 	public boolean addOption(DhcpOption option){
 		if(options != null){
 			return options.addOption(option);
@@ -194,6 +236,10 @@ public class DhcpMessage {
 		else return false;
 	}
 	
+	/**
+	 * @param type The type to find
+	 * @return The string corresponding to type
+	 */
 	public static String findStringOfType(int type){
 		switch(type){
 		case 1: return "DHCPDISCOVER";
@@ -374,6 +420,5 @@ public class DhcpMessage {
 	}
 	
 	/*END OF GETTERS AND SETTERS*/
-	
 	
 }

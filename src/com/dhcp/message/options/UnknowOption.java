@@ -6,6 +6,11 @@ import com.dhcp.message.InvalidDhcpMessageException;
 import com.dhcp.message.common.DhcpOption;
 import com.dhcp.util.BufferUtils;
 
+/**
+ * 
+ * @author Adrien
+ *
+ */
 public class UnknowOption extends DhcpOption {
 	
 	public UnknowOption(short code){

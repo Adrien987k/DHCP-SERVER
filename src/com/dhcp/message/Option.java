@@ -1,5 +1,10 @@
 package com.dhcp.message;
 
+/**
+ * 
+ * @author Adrien
+ *
+ */
 public class Option {
 	
 	public static final short EMPTY = 0;

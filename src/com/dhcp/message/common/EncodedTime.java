@@ -2,8 +2,17 @@ package com.dhcp.message.common;
 
 import com.dhcp.util.BufferUtils;
 
+/**
+ * This object represent a time in days, hours, minutes and seconds
+ * 
+ * @author Adrien
+ *
+ */
 public class EncodedTime implements Encodable {
 	
+	/**
+	 * Masks used to the number of days, years, minutes or seconds of a time
+	 */
 	private static long[] masks = new long[]
 			{ 4278190080L, // 1111 1111 0000 0000 0000 0000 0000 0000
 				16711680L, // 0000 0000 1111 1111 0000 0000 0000 0000
@@ -11,7 +20,15 @@ public class EncodedTime implements Encodable {
                      255L, // 0000 0000 0000 0000 0000 0000 1111 1111
 		    };
 	
+	/**
+	 * A long that represent the total in seconds of this encoded time
+	 */
 	private long time = 0;
+	
+	/**
+	 * The encoded time to put into the dhcp message
+	 * We use short to contain unsigned bytes
+	 */
 	private short[] encodedTime = new short[4];
 	
 	private long days;
@@ -40,6 +57,9 @@ public class EncodedTime implements Encodable {
 		encode();
 	}
 	
+	/**
+	 * Fill the encodedTime with the appropriate values to encode this time
+	 */
 	private void encode(){
 		time += (days * (24L * 3600L));
 		time += (hours * 3600L);
@@ -66,6 +86,9 @@ public class EncodedTime implements Encodable {
 		return EncodedTime.parseEncodedTime(buffer);
 	}
 	
+	/**
+	 * return this because the element of an encodedTime is the encoded time itself
+	 */
 	@SuppressWarnings("unchecked")
 	@Override
 	public EncodedTime getElement(){
@@ -96,6 +119,8 @@ public class EncodedTime implements Encodable {
 		sb.append(" Seconds : " + getSeconds() + "\n");
 		return sb.toString();
 	}
+	
+	/*GETTERS AND SETTERS*/
 	
 	public long getDays() {
 		return days;
@@ -132,6 +157,8 @@ public class EncodedTime implements Encodable {
 		this.seconds = seconds;
 		encode();
 	}
+	
+	/*END OF GETTERS AND SETTERS*/
 	
 }	
 

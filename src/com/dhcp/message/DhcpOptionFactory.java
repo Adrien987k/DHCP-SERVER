@@ -16,8 +16,20 @@ import com.dhcp.message.options.ServerIdentifierOption;
 import com.dhcp.message.options.SubnetMaskOption;
 import com.dhcp.message.options.UnknowOption;
 
+/**
+ * 
+ * @author Adrien
+ *
+ */
 public class DhcpOptionFactory {
 	
+	/**
+	 * Use to get a new DhcpOption object corresponding to the code in parameter
+	 * Return an UnknownOption if the code option is unknown
+	 * 
+	 * @param code The code of the option you want
+	 * @return A new DhcpOption object corresponding to the code
+	 */
 	public static DhcpOption buildDhcpOption(short code) {
 		try{
 			switch(code){

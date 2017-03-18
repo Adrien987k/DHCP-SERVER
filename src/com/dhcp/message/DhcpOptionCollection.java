@@ -11,14 +11,27 @@ import com.dhcp.message.options.EndOption;
 import com.dhcp.message.options.MessageTypeOption;
 import com.dhcp.util.BufferUtils;
 
+/**
+ * Represent a coherent option collection
+ * 
+ * @author Adrien
+ *
+ */
 public class DhcpOptionCollection {
 	
+	/**
+	 * Contain all the options of this collection, the key is the code of the option
+	 */
 	private Map<Short, DhcpOption> options = new HashMap<>();
 	
 	public DhcpOptionCollection(){
 		
 	}
 	
+	/**
+	 * @return a byte array corresponding of the encoded date of this option collection
+	 * @throws InvalidDhcpMessageException
+	 */
 	public byte[] getOptionsBytes() throws InvalidDhcpMessageException {
 		if(!isValidOptionCollection()) 
 			DhcpMessage.invalidDhcpMessage("try to send dhcp message with invalid collection of options");
@@ -36,6 +49,11 @@ public class DhcpOptionCollection {
 		return buffer.array();
 	}
 	
+	/**
+	 * @param buffer The ByteBuffer containing all the options data
+	 * @return A new DhcpCollection containing all the date of the buffer
+	 * @throws InvalidDhcpMessageException
+	 */
 	public static DhcpOptionCollection parseDhcpOptions(ByteBuffer buffer) throws InvalidDhcpMessageException {
 		DhcpOptionCollection options = new DhcpOptionCollection();
 		
@@ -56,6 +74,12 @@ public class DhcpOptionCollection {
 		return options;
 	}
 	
+	/**
+	 * Add an option to this collection
+	 * 
+	 * @param option The option to add
+	 * @return True if the option have been added, false otherwise
+	 */
 	public boolean addOption(DhcpOption option){
 		if(option == null){
 			return false;
@@ -65,12 +89,18 @@ public class DhcpOptionCollection {
 		return true;
 	}
 	
+	/**
+	 * @return The number of bytes of this collection
+	 */
 	public int totalLength(){
 		int result = 0;
 		for(DhcpOption option : options.values()) result += option.getTotalLength();
 		return result;
 	}
 	
+	/**
+	 * @return The type of the message type option (53) of this collection, 0 if this option is not present 
+	 */
 	public int getDhcpMessageType(){
 		if(options.containsKey(Option.MESSAGE_TYPE)){
 			MessageTypeOption msgTypeOpt = (MessageTypeOption) options.get(Option.MESSAGE_TYPE);
@@ -87,6 +117,9 @@ public class DhcpOptionCollection {
 		return sb.toString();
 	}
 	
+	/**
+	 * @return True if this collection is valid, false otherwise
+	 */
 	public boolean isValidOptionCollection(){
 		boolean containsDhcpMessageType = false;
 		boolean allOptionAppearsOneTime = true;
@@ -109,6 +142,11 @@ public class DhcpOptionCollection {
 			   && allOptionAreValid;
 	}
 	
+	/**
+	 * 
+	 * @param code The code of the option to get
+	 * @return The DhcpOption corresponding to the code, null if this option is not present
+	 */
 	public DhcpOption getByCode(short code) {
 		return options.get(code);
 	}

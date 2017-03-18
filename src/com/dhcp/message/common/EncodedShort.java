@@ -2,6 +2,12 @@ package com.dhcp.message.common;
 
 import com.dhcp.util.BufferUtils;
 
+/**
+ * An object that represent an encoded short
+ * 
+ * @author Adrien
+ *
+ */
 public class EncodedShort implements Encodable {
 	
 	public short sh;

@@ -1,5 +1,11 @@
 package com.dhcp.message.common;
 
+/**
+ * An object that represent an encoded byte
+ * 
+ * @author Adrien
+ *
+ */
 public class EncodedByte implements Encodable {
 	
 	public byte b;
