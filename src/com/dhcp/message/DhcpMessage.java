@@ -7,6 +7,7 @@ import java.nio.ByteBuffer;
 import com.dhcp.message.common.DhcpOption;
 import com.dhcp.util.BufferUtils;
 import com.dhcp.util.HardwareAddress;
+import com.dhcp.util.ServerLogger;
 
 public class DhcpMessage {
 	
@@ -58,7 +59,7 @@ public class DhcpMessage {
 			siaddr = InetAddress.getByName("0.0.0.0");
 			giaddr = InetAddress.getByName("0.0.0.0");
 		} catch (UnknownHostException e) {
-			//TODO LOGGER
+			ServerLogger.error(ServerLogger.SEVERITY_LOW, "Cannot initialize addresses in DHCP message");
 			e.printStackTrace();
 		}
 	}
@@ -93,15 +94,14 @@ public class DhcpMessage {
 		try {
 			if(options != null) buffer.put(options.getOptionsBytes());
 		} catch (InvalidDhcpMessageException e) {
-			//TODO do something
+			
 		}
 		
 		return buffer.array();
 	}
 	
 	public static void invalidDhcpMessage(String message) throws InvalidDhcpMessageException {
-		//TODO LOGGER error
-		System.out.println("ERROR : " + message);
+		ServerLogger.error(ServerLogger.SEVERITY_LOW, message);
 		throw new InvalidDhcpMessageException(message);
 	}
 	

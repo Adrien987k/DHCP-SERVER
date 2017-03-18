@@ -21,9 +21,9 @@ public class PropertiesWriter {
 		try {
 			this.cfg = new FileWriter(file);
 		} catch (FileNotFoundException e) {
-			logger.systemMessage("Can not find the config file: " + file.getPath());
+			ServerLogger.error(ServerLogger.SEVERITY_HIGH, "Can not find the config file: " + file.getPath());
 		} catch (IOException e) {
-			e.printStackTrace();
+			ServerLogger.error(ServerLogger.SEVERITY_HIGH, "IO Exception, cannot read properties file");
 		}
 	}
 	
@@ -60,7 +60,7 @@ public class PropertiesWriter {
 			cfg.close();
 			
 		} catch (IOException e) {
-			e.printStackTrace();
+			ServerLogger.error(ServerLogger.SEVERITY_HIGH, "IO Exception, cannot read properties file");
 		}
 		
 	}
@@ -82,9 +82,9 @@ public class PropertiesWriter {
 			write(properties);
 			
 		} catch (FileNotFoundException e) {
-			e.printStackTrace();
+			ServerLogger.error(ServerLogger.SEVERITY_HIGH, "Cannot find preperties file");
 		} catch (IOException e) {
-			e.printStackTrace();
+			ServerLogger.error(ServerLogger.SEVERITY_HIGH, "IO Exception, Cannot write properties file");
 		}
 	}
 	

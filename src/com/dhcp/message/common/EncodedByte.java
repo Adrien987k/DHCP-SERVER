@@ -18,11 +18,13 @@ public class EncodedByte implements Encodable {
 		return 1;
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public EncodedByte parseEncodable(byte[] buffer) {
 		return new EncodedByte(buffer[0]);
 	}
 	
+	@SuppressWarnings("unchecked")
 	@Override
 	public Byte getElement(){
 		return b;

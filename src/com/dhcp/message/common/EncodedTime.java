@@ -60,11 +60,13 @@ public class EncodedTime implements Encodable {
 						   (byte) encodedTime[3] };
 	}
 	
+	@SuppressWarnings("unchecked")
 	@Override
 	public EncodedTime parseEncodable(byte[] buffer){
 		return EncodedTime.parseEncodedTime(buffer);
 	}
 	
+	@SuppressWarnings("unchecked")
 	@Override
 	public EncodedTime getElement(){
 		return this;

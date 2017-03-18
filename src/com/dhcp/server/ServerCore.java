@@ -14,28 +14,21 @@ import com.dhcp.util.ServerLogger;
 public class ServerCore extends Thread {
 
 	private ServerConfig serverConfig;
-	private ServerLogger logger = null;
 	
 	@SuppressWarnings("unused")
 	private ExecutorService pool = null;
 	private LeaseManager leaseManager = null;
 	private boolean stop = false;
 	
-	@Deprecated
-	public ServerCore() throws IOException {
-		logger = new ServerLogger();
-		logger.systemMessage("Server started");
-		pool = Executors.newFixedThreadPool(100);
-		start();
+	public ServerCore(String config) throws IOException {
+		ServerLogger.systemMessage("Initialization");
+		serverConfig = new ServerConfig(config);
+		ServerLogger.systemMessage("Server " + serverConfig.getServerName() + " || " + serverConfig.getServerAddress() + " started");
+		pool = Executors.newFixedThreadPool(serverConfig.getAddressAvailable());
+		leaseManager = new LeaseManager(this);
 	}
 	
-	public ServerCore(String config) throws IOException {
-		logger = new ServerLogger();
-		logger.systemMessage("Initialization");
-		serverConfig = new ServerConfig(config,logger);
-		logger.systemMessage("Server " + serverConfig.getServerName() + " || " + serverConfig.getServerAddress() + " started");
-		pool = Executors.newFixedThreadPool(serverConfig.getAddressAvailable());
-		leaseManager = new LeaseManager(this,logger);
+	public void startServer(){
 		start();
 	}
 	
@@ -49,14 +42,13 @@ public class ServerCore extends Thread {
 				ds67.setBroadcast(true);
 				try {
 					ds67.receive(packet);
-					// TODO Bloque sur l'appel et donc ne traite qu'un message à la fois 
-					//pool.execute(new HandlerDHCPMessage(packet,logger,this));
-					new Thread(new HandlerDHCPMessage(packet,logger,this)).start();
+					new Thread(new HandlerDHCPMessage(packet, this)).start();
 				} catch (IOException e) {
+					ServerLogger.error(ServerLogger.SEVERITY_HIGH, "IO Exception, Server might not be connect to the network");
 				}
 			}
 		} catch (SocketException se) {
-			se.printStackTrace();
+			ServerLogger.error(ServerLogger.SEVERITY_HIGH, "Socket Exception");
 		}
 		
 	}

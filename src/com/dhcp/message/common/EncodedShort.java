@@ -21,11 +21,13 @@ public class EncodedShort implements Encodable {
 		return 1;
 	}
 	
+	@SuppressWarnings("unchecked")
 	@Override
 	public EncodedShort parseEncodable(byte[] buffer){
 		return new EncodedShort(BufferUtils.byteToShort(buffer[0]));
 	}
 	
+	@SuppressWarnings("unchecked")
 	@Override
 	public Short getElement(){
 		return sh;

@@ -26,8 +26,8 @@ public class ServerConfig {
 	
 	private final HashMap<InetAddress,Lease> staticLeases = new HashMap<>();
 	
-	public ServerConfig(String config, ServerLogger logger) {
-		logger.systemMessage("Loading config from " + config);
+	public ServerConfig(String config) {
+		ServerLogger.systemMessage("Loading config from " + config);
 		File cfg = new File (config);
 	
 		try {
@@ -53,9 +53,9 @@ public class ServerConfig {
 			}
 			
 		} catch (FileNotFoundException e) {
-			logger.systemMessage("Could not find file \"" + config + "\"");
+			ServerLogger.error(ServerLogger.SEVERITY_HIGH, "Could not find file \"" + config + "\"");
 		} catch (IOException e ) {
-			e.printStackTrace();
+			ServerLogger.error(ServerLogger.SEVERITY_HIGH, "IO Exception, Server might not be connect to the network");
 		}
 		
 	}

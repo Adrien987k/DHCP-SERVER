@@ -23,32 +23,27 @@ import com.dhcp.util.TransactionID;
 
 public class HandlerDHCPMessage extends Thread {
 
-	private ServerLogger logger;
 	private ServerCore server;
 	
 	public static final HashMap<TransactionID,InetAddress> addressPreSelected = new HashMap<>();
 	
-	public HandlerDHCPMessage(DatagramPacket packet, ServerLogger logger,ServerCore server) {
+	public HandlerDHCPMessage(DatagramPacket packet, ServerCore server) {
 		this.server = server;
-		this.logger = logger;
 		DhcpMessage message = DhcpMessage.parseDhcpPacket(packet.getData());
-		handle(message);
+		if(message.isValid()){ 
+			handle(message);
+		}
 	}
 	
 	private void handle(DhcpMessage message) {
 		
-		logger.messageReceived(message.toString());
-		
-		/* TODO A la fin du projet (pour ignorer les messages non valides) 
-		   
-		   
-		 */
+		ServerLogger.messageReceived(message.toString());
 		
 		switch(message.getType()) {
 			case DhcpMessage.DHCPDISCOVER: handleDISCOVER(message); break;
 			case DhcpMessage.DHCPREQUEST: handleREQUEST(message); break;
 			case DhcpMessage.DHCPRELEASE: handleRELEASE(message); break;
-			default: logger.systemMessage("Message " + message + " ignored");
+			default: ServerLogger.systemMessage("Message " + message + " ignored");
 		}
 	}
 	
@@ -70,8 +65,10 @@ public class HandlerDHCPMessage extends Thread {
 		TransactionID xid = new TransactionID(message.getXid());
 		if( (addressPreSelected = getServer().getLeaseManager().findAvailableIpAddress(xid)) != null )
 			response.setYiaddr(addressPreSelected);
-		else
-			logger.systemMessage("error");
+		else{			
+			ServerLogger.error(ServerLogger.SEVERITY_MEDIUM, "Cannot handle DHCPDISCOVER message, ignored");
+			return false;
+		}
 
 
 		response.setSiaddr(getServer().getConfig().getServerAddress());
@@ -90,7 +87,8 @@ public class HandlerDHCPMessage extends Thread {
 			response.addOption(new DNSOption(getServer().getConfig().getServerAddress()));
 			response.addOption(new SubnetMaskOption(getServer().getConfig().getNetMask()));
 		} catch (UnknownHostException e) {
-			e.printStackTrace();
+			ServerLogger.error(ServerLogger.SEVERITY_MEDIUM, "Try to put invalid ip address in a dhcp message, cancel operation");
+			return false;
 		}
 		
 		response.addOption(new MessageTypeOption(DhcpMessage.DHCPOFFER));
@@ -98,10 +96,11 @@ public class HandlerDHCPMessage extends Thread {
 		response.setSname("");
 		response.setFile("");
 		
-		logger.messageSent(response.toString());
+		ServerLogger.messageSent(response.toString());
 		
 		if(!response.validateBeforeSending()){
-			//TODO HANDLE Error
+			ServerLogger.error(ServerLogger.SEVERITY_MEDIUM, "try to send invalid dhcp message");
+			return false;
 		}
 		
 		if(sendResponse(response)) {
@@ -164,28 +163,28 @@ public class HandlerDHCPMessage extends Thread {
 				response.addOption(new DNSOption(getServer().getConfig().getServerAddress()));
 				response.addOption(new RouterOption(getServer().getConfig().getRouterAddress()));
 			} catch (UnknownHostException e) {
-				e.printStackTrace();
+				ServerLogger.error(ServerLogger.SEVERITY_MEDIUM, "Try to put invalid ip address in a dhcp message, cancel operation");
+				return false;
 			}
 		} else {
 			response.addOption(new MessageTypeOption(DhcpMessage.DHCPNAK));
 			response.setType(DhcpMessage.DHCPNAK);
 		}
 
-		
-		
 		response.setSname("");
 		response.setFile("");
 		
 		if(!response.validateBeforeSending()){
-			//TODO HANDLE Error
 			if(leaseAttributed)
-				logger.systemMessage("INVALID DHCPACK ");
+				ServerLogger.error(ServerLogger.SEVERITY_MEDIUM, "Try to send invalid DHCPACK message, cancel operation");
 			else
-				logger.systemMessage("INVALID DHCPNACK ");
+				ServerLogger.error(ServerLogger.SEVERITY_MEDIUM, "Try to send invalid DHCPNAK message, cancel operation");
+			
+			return false;
 		}
 		
 		if(sendResponse(response)) {
-			logger.messageSent(response.toString());
+			ServerLogger.messageSent(response.toString());
 			return true;
 		}
 			
@@ -225,16 +224,19 @@ public class HandlerDHCPMessage extends Thread {
 			ds.send(response);
 			ds.close();
 		} catch (SocketException e) {
-			e.printStackTrace();
+			ServerLogger.error(ServerLogger.SEVERITY_HIGH, "Socket Exception");
+			ServerLogger.error(ServerLogger.SEVERITY_MEDIUM, "Sending dhcp message failed, cancel operation");
 			return false;
 		} catch (UnknownHostException e) {
-			e.printStackTrace();
+			ServerLogger.error(ServerLogger.SEVERITY_HIGH, "Try to use an unknown host");
+			ServerLogger.error(ServerLogger.SEVERITY_MEDIUM, "Sending dhcp message failed, cancel operation");
 			return false;
 		} catch (InvalidDhcpMessageException e) {
-			e.printStackTrace();
+			ServerLogger.error(ServerLogger.SEVERITY_MEDIUM, "Try to send invalid dhcp message, cancel operation");
 			return false;
 		} catch (IOException e) {
-			e.printStackTrace();
+			ServerLogger.error(ServerLogger.SEVERITY_HIGH, "IO Exception, Server might not be connect to the network");
+			ServerLogger.error(ServerLogger.SEVERITY_MEDIUM, "Sending dhcp message failed, cancel operation");
 			return false;
 		}
 		

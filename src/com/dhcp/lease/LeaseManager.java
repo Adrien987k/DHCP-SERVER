@@ -15,14 +15,11 @@ public class LeaseManager {
 
 	private final HashMap<InetAddress, Lease> leases = new HashMap<>();
 	
-	private ServerLogger logger;
-		
 	private ServerCore server;
 	
 	
-	public LeaseManager(ServerCore server, ServerLogger logger) {
+	public LeaseManager(ServerCore server) {
 		this.server = server;
-		this.logger = logger;
 		
 		leases.putAll(getServer().getConfig().getStaticLeases());
 	}
@@ -41,7 +38,7 @@ public class LeaseManager {
 					return lease.getIPAddress();
 				}	
 			}
-			logger.systemMessage("No available IP Address for Hardware Address " + hardwareAddress);
+			ServerLogger.error(ServerLogger.SEVERITY_MEDIUM, "No available IP Address for Hardware Address " + hardwareAddress);
 			return null;
 		}
 	
@@ -50,18 +47,18 @@ public class LeaseManager {
 		if(getLeases().get(ipAddress) != null) {
 			if(getLeases().get(ipAddress).isAvailable()) {
 					getLeases().get(ipAddress).bind(hardwareAddress);
-					logger.systemMessage("Lease " + getLeases().get(ipAddress) + " has been allocated with the IP Address '" + ipAddress + "' for the Hardware address '" + hardwareAddress + "'");
+					ServerLogger.systemMessage("Lease " + getLeases().get(ipAddress) + " has been allocated with the IP Address '" + ipAddress + "' for the Hardware address '" + hardwareAddress + "'");
 					return ipAddress;
 			} else if(getLeases().get(ipAddress).getHardwareAddress().toString().equals(hardwareAddress.toString())) { 
-				logger.systemMessage("Lease " + getLeases().get(ipAddress) + " has been extended with the IP Address '" + ipAddress + "' for the Hardware address '" + hardwareAddress + "'");
+				ServerLogger.systemMessage("Lease " + getLeases().get(ipAddress) + " has been extended with the IP Address '" + ipAddress + "' for the Hardware address '" + hardwareAddress + "'");
 				return ipAddress;
 			} else {
-				logger.systemMessage("The IP address '" + ipAddress+"' for Hardware Address '" + hardwareAddress + "' is not availbale");
+				ServerLogger.systemMessage("The IP address '" + ipAddress+"' for Hardware Address '" + hardwareAddress + "' is not availbale");
 				return getRandIPAddress(hardwareAddress);
 			}
 		} else {
 			getLeases().put(ipAddress, new Lease(ipAddress,hardwareAddress,getServer().getConfig().getLeaseDuration()));
-			logger.systemMessage("Lease " + getLeases().get(ipAddress) + " has been allocated with the IP Address '" + ipAddress + "' for the Hardware address '" + hardwareAddress + "'");
+			ServerLogger.systemMessage("Lease " + getLeases().get(ipAddress) + " has been allocated with the IP Address '" + ipAddress + "' for the Hardware address '" + hardwareAddress + "'");
 			return ipAddress;
 		}
 		
@@ -89,15 +86,14 @@ public class LeaseManager {
 				
 				if(!getLeases().containsKey(ipAddress)
 						&& !HandlerDHCPMessage.addressPreSelected.containsValue(ipAddress)) {
-					logger.systemMessage("IP Address selected: " + ipAddress);
+					ServerLogger.systemMessage("IP Address selected: " + ipAddress);
 					return ipAddress;
 				}
 			}
 		} catch (UnknownHostException e) {
-			
-			e.printStackTrace();
+			ServerLogger.error(ServerLogger.SEVERITY_MEDIUM, "UnknowHostException when trying to find available ip address");
 		}
-		logger.systemMessage("ERROR");
+		ServerLogger.error(ServerLogger.SEVERITY_MEDIUM, "Cannot find available address");
 		return null;
 	}
 	
