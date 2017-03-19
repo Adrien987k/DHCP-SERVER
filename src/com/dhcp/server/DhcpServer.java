@@ -4,6 +4,12 @@ import java.io.IOException;
 
 import com.dhcp.util.ServerLogger;
 
+/**
+ * The DhcpServer class is a re-implementation of a real DHCP server.
+ * This class will start the server with the config file located at \'data/config\'.
+ * @author Arnaud
+ *
+ */
 public class DhcpServer {
 	
 	public static void main(String[] args) {

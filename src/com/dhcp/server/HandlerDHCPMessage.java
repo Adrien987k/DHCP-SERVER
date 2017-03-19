@@ -21,12 +21,31 @@ import com.dhcp.message.options.SubnetMaskOption;
 import com.dhcp.util.ServerLogger;
 import com.dhcp.util.TransactionID;
 
+/**
+ * The HandlerDHCPMessage class is a thread created when a message is received.
+ * If the message is valid, it will handle it and respond to the sender.
+ * @author Arnaud
+ *
+ */
 public class HandlerDHCPMessage extends Thread {
 
+	/**
+	 * The link to the server it belongs.
+	 */
 	private ServerCore server;
 	
+	/**
+	 * A hash map containing address offered in a OFFER message.
+	 * Note that addresses contained in are frequently removed.
+	 * This system ensure that an address offered will not be attributed to another client.
+	 */
 	public static final HashMap<TransactionID,InetAddress> addressPreSelected = new HashMap<>();
 	
+	/**
+	 * Create a new handler and process the message if it's a valid one.
+	 * @param packet The message received.
+	 * @param server The server which the handler belong to.
+	 */
 	public HandlerDHCPMessage(DatagramPacket packet, ServerCore server) {
 		this.server = server;
 		DhcpMessage message = DhcpMessage.parseDhcpPacket(packet.getData());
@@ -35,6 +54,11 @@ public class HandlerDHCPMessage extends Thread {
 		}
 	}
 	
+	/**
+	 * Process the message and send it to the correct handler method.
+	 * If the message is not supported, it will return immediately.
+	 * @param message The message to process.
+	 */
 	private void handle(DhcpMessage message) {
 		
 		ServerLogger.messageReceived(message.toString());
@@ -47,6 +71,11 @@ public class HandlerDHCPMessage extends Thread {
 		}
 	}
 	
+	/**
+	 * Handle a valid DISCOVER message.
+	 * @param message The DISCOVER message.
+	 * @return True if a response has been sent.
+	 */
 	private boolean handleDISCOVER(DhcpMessage message) {
 		
 		DhcpMessage response = new DhcpMessage();
@@ -106,7 +135,7 @@ public class HandlerDHCPMessage extends Thread {
 		if(sendResponse(response)) {
 			
 			try {
-				Thread.sleep(2000);
+				Thread.sleep(3000);
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			} finally {
@@ -122,6 +151,11 @@ public class HandlerDHCPMessage extends Thread {
 	
 	//TODO d'autres options pour le renouvellement doivent, peut être, être ajoutées
 	//l'ack d'un client ayant déjà une adresse allouée avant mais s'il renvoie un Discover ça marche
+	/**
+	 * Handle a valid REQUEST message.
+	 * @param message The REQUEST message.
+	 * @return True if a response has been sent.
+	 */
 	private boolean handleREQUEST(DhcpMessage message) {
 		
 		InetAddress ipAddressAllocated = null;
@@ -192,6 +226,11 @@ public class HandlerDHCPMessage extends Thread {
 		return false;
 	}
 	
+	/**
+	 * Handle a valid RELEASE message.
+	 * @param message The RELEASE message.
+	 * @return True if the address is correct.
+	 */
 	private boolean handleRELEASE(DhcpMessage message) {
 		
 		if(message.getCiaddr().getAddress()[0] != 0) {
@@ -201,6 +240,12 @@ public class HandlerDHCPMessage extends Thread {
 		return false;
 	}
 	
+	/**
+	 * Send a message to a specific address if the message contains one
+	 * or broadcast it.
+	 * @param message The message to send.
+	 * @return True if the message is sent.
+	 */
 	private boolean sendResponse(DhcpMessage message) {
 		
 		try {
@@ -243,6 +288,9 @@ public class HandlerDHCPMessage extends Thread {
 		return true;
 	}
 	
+	/**
+	 * @return The server which the handler belongs to.
+	 */
 	public ServerCore getServer() {
 		return server;
 	}

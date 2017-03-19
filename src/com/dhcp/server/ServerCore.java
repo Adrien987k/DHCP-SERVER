@@ -11,15 +11,42 @@ import com.dhcp.lease.LeaseManager;
 import com.dhcp.util.ServerLogger;
 
 
+/**
+ * The ServerCore class is the core of the server.
+ * The server will try to bind to the port 67 and then handle and respond to any
+ * valid DISCOVER, REQUEST or RELEASE message received.
+ * @author Arnaud
+ *
+ */
 public class ServerCore extends Thread {
 
+	/**
+	 * The server config loaded from the config file.
+	 */
 	private ServerConfig serverConfig;
 	
+	/**
+	 * The pool of thread which will handle messages.
+	 * Note that for the moment this pool is not used because of technical issues.
+	 * Any message received will start a new thread until the problem is fixed.
+	 */
 	@SuppressWarnings("unused")
 	private ExecutorService pool = null;
+	
+	/**
+	 * The lease manager which create, store and delete lease attributed to clients.
+	 */
 	private LeaseManager leaseManager = null;
+	
+	/**
+	 * Indicates if the server must stop.
+	 */
 	private boolean stop = false;
 	
+	/**
+	 * Create a new server with a lease manager, loading configuration from the config file.
+	 * @param config The path of the config file.
+	 */
 	public ServerCore(String config) throws IOException {
 		ServerLogger.systemMessage("Initialization");
 		serverConfig = new ServerConfig(config);
@@ -28,6 +55,9 @@ public class ServerCore extends Thread {
 		leaseManager = new LeaseManager(this);
 	}
 	
+	/**
+	 * Start the server.
+	 */
 	public void startServer(){
 		start();
 	}
@@ -53,10 +83,16 @@ public class ServerCore extends Thread {
 		
 	}
 
+	/**
+	 * @return The configuration of the server.
+	 */
 	public ServerConfig getConfig() {
 		return serverConfig;
 	}
 	
+	/**
+	 * @return The lease manager of the server.
+	 */
 	public LeaseManager getLeaseManager() {
 		return leaseManager;
 	}

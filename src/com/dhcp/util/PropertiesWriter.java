@@ -9,12 +9,35 @@ import java.util.Properties;
 
 import com.dhcp.lease.Lease;
 
+/**
+ * The PropertiesWriter class re-write the config file with the appropriate presentation.
+ * This writer makes the config file easy to read.
+ * @author MrkArnaud
+ *
+ */
 public class PropertiesWriter {
 
+	/**
+	 * The file writer.
+	 */
 	FileWriter cfg;
+	
+	/**
+	 * The file to write the config into.
+	 */
 	File file;
+	
+	/**
+	 * The link to the server logger.
+	 */
 	ServerLogger logger;
 	
+	
+	/**
+	 * Create a new writer to be able to write in the specified file.
+	 * @param logger The server logger.
+	 * @param file The path of the file to write into.
+	 */
 	public PropertiesWriter(ServerLogger logger, File file) {
 		this.logger = logger;
 		this.file = file;
@@ -27,6 +50,10 @@ public class PropertiesWriter {
 		}
 	}
 	
+	/**
+	 * Write properties into the file.
+	 * @param properties Properties to write into.
+	 */
 	public synchronized void write(Properties properties) {
 		
 		try {
@@ -65,6 +92,10 @@ public class PropertiesWriter {
 		
 	}
 	
+	/**
+	 * Add a new static lease to the config file.
+	 * @param lease The static lease to add.
+	 */
 	public synchronized void writeLease(Lease lease) {
 		try {
 			

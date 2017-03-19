@@ -12,20 +12,66 @@ import com.dhcp.lease.Lease;
 import com.dhcp.util.HardwareAddress;
 import com.dhcp.util.ServerLogger;
 
+/**
+ * The ServerConfig class provides an interface to access to the server configuration.
+ * The config is loaded from a config file.
+ * The config provides required information for the good working of the server.
+ * It contains vital information about addresses to attribute or netMask.
+ * @author Arnaud
+ *
+ */
 public class ServerConfig {
 
+	/**
+	 * The name of the server.
+	 */
 	private String serverName;
+	
+	/**
+	 * The net mask of the server.
+	 * Message sent by broadcast will be sent according to this mask.
+	 */
 	private InetAddress netMask;
+	
+	/**
+	 * The IP address of the server.
+	 */
 	private InetAddress serverAddress;
+	
+	/**
+	 * The router address to give.
+	 */
 	private InetAddress routerAddress;
+	
+	/**
+	 * The start of the band of IP addresses.
+	 */
 	private InetAddress ipAddressBandStart;
+	
+	/**
+	 * The end of the band of IP addresses.
+	 */
 	private InetAddress ipAddressBandEnd;
 	
+	/**
+	 * The default duration of future lease.
+	 */
 	private long leaseDuration;
+	
+	/**
+	 * The number of addresses available.
+	 */
 	private int addressAvailable;
 	
+	/**
+	 * A hash map containing all static leases.
+	 */
 	private final HashMap<InetAddress,Lease> staticLeases = new HashMap<>();
 	
+	/**
+	 * Create a server config according to the config file.
+	 * @param config The path of the config file.
+	 */
 	public ServerConfig(String config) {
 		ServerLogger.systemMessage("Loading config from " + config);
 		File cfg = new File (config);
@@ -60,38 +106,65 @@ public class ServerConfig {
 		
 	}
 
+	/**
+	 * @return The server name.
+	 */
 	public String getServerName() {
 		return serverName;
 	}
 
+	/**
+	 * @return The net mask.
+	 */
 	public InetAddress getNetMask() {
 		return netMask;
 	}
 	
+	/**
+	 * @return The IP address of the server.
+	 */
 	public InetAddress getServerAddress() {
 		return serverAddress;
 	}
 
+	/**
+	 * @return The router address.
+	 */
 	public InetAddress getRouterAddress() {
 		return routerAddress;
 	}
 	
+	/**
+	 * @return The start of the band of IP addresses.
+	 */
 	public InetAddress getIpAddressBandStart() {
 		return ipAddressBandStart;
 	}
 
+	/**
+	 * @return The end of the band of IP addresses.
+	 */
 	public InetAddress getIpAddressBandEnd() {
 		return ipAddressBandEnd;
 	}
 
+	/**
+	 * @return The default lease duration.
+	 */
 	public long getLeaseDuration() {
 		return leaseDuration;
 	}
 
+	/**
+	 * @return The number of addresses available.
+	 */
 	public int getAddressAvailable() {
 		return addressAvailable;
 	}
 	
+	/**
+	 * @return The hash map with static leases.
+	 */
 	public HashMap<InetAddress,Lease> getStaticLeases() {
 		return staticLeases;
 	}
